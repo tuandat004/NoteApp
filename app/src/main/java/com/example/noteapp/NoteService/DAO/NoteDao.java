@@ -17,4 +17,7 @@ public interface NoteDao {
 
     @Query("SELECT * FROM notes WHERE is_deleted = 0 ORDER BY note_id DESC")
     LiveData<List<Note>> getAllNotes();
+
+    @Query("SELECT * FROM notes WHERE note_id = :noteId LIMIT 1")
+    Note getNoteById(int noteId);
 }

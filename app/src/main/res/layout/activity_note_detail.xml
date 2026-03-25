@@ -15,20 +15,22 @@
             android:layout_height="wrap_content">
 
             <TextView
+                android:id="@+id/txtBack"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="‹ Back"
                 android:textColor="#7C736B"
-                android:textSize="14sp"/>
+                android:textSize="14sp" />
 
             <TextView
+                android:id="@+id/txtHeaderTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:text="Project Meeting"
+                android:text=""
                 android:textColor="#3A312B"
                 android:textSize="20sp"
-                android:textStyle="bold"/>
+                android:textStyle="bold" />
 
             <Button
                 android:id="@+id/btnEdit"
@@ -38,17 +40,18 @@
                 android:background="@drawable/bg_btn_yellow"
                 android:text="Edit"
                 android:textAllCaps="false"
-                android:textColor="#3A312B"/>
+                android:textColor="#3A312B" />
         </RelativeLayout>
 
         <TextView
+            android:id="@+id/txtTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="Project Meeting"
+            android:text=""
             android:textColor="#2E2A27"
             android:textSize="30sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -56,65 +59,75 @@
             android:layout_marginTop="12dp"
             android:orientation="horizontal">
 
-            <TextView style="@style/TagChipYellow" android:text="Work"/>
+            <TextView
+                android:id="@+id/txtTags"
+                style="@style/TagChipYellow"
+                android:text="" />
 
             <TextView
+                android:id="@+id/txtCreatedAt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:text="Today, 9:41 AM"
+                android:text=""
                 android:textColor="#9A9189"
-                android:textSize="13sp"/>
+                android:textSize="13sp" />
         </LinearLayout>
 
         <TextView
+            android:id="@+id/txtSubtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:background="@drawable/bg_link_chip"
             android:paddingHorizontal="10dp"
             android:paddingVertical="5dp"
-            android:text="dailyplanner.com"
+            android:text=""
             android:textColor="#7C8DA5"
-            android:textSize="12sp"/>
+            android:textSize="12sp" />
 
         <ImageView
+            android:id="@+id/imgNote"
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:layout_marginTop="14dp"
-            android:scaleType="centerCrop"
             android:background="@drawable/bg_image_thumb"
-            android:src="@android:drawable/ic_menu_gallery"/>
+            android:scaleType="centerCrop" />
 
         <TextView
+            android:id="@+id/txtContent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
             android:lineSpacingExtra="4dp"
-            android:text="Discussed project milestones and upcoming tasks.\n\nAssigned responsibilities to team members:\n• John - Design phase\n• Alice - Backend development\n• Mark - Testing QA"
+            android:text=""
             android:textColor="#4E4741"
-            android:textSize="16sp"/>
+            android:textSize="16sp" />
 
         <TextView
+            android:id="@+id/txtReminder"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:background="@drawable/bg_reminder_box"
             android:padding="14dp"
-            android:text="🔔  Next Meeting: Friday at 10:00 AM"
+            android:text=""
             android:textColor="#7B6747"
-            android:textSize="15sp"/>
+            android:textSize="15sp"
+            android:visibility="gone" />
 
         <TextView
+            android:id="@+id/txtLink"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:background="@drawable/bg_link_chip"
             android:paddingHorizontal="10dp"
             android:paddingVertical="5dp"
-            android:text="dailyplanner.com"
+            android:text=""
             android:textColor="#7C8DA5"
-            android:textSize="12sp"/>
+            android:textSize="12sp"
+            android:visibility="gone" />
 
         <HorizontalScrollView
             android:layout_width="match_parent"
@@ -129,13 +142,13 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <View style="@style/ColorCircle" android:background="#F3D986"/>
-                <View style="@style/ColorCircle" android:background="#DDE0A8"/>
-                <View style="@style/ColorCircle" android:background="#B7D6C6"/>
-                <View style="@style/ColorCircle" android:background="#B5C7DE"/>
-                <View style="@style/ColorCircle" android:background="#D5C9E3"/>
-                <View style="@style/ColorCircle" android:background="#EDC9CF"/>
-                <View style="@style/ColorCircle" android:background="#D9D5D2"/>
+                <View style="@style/ColorCircle" android:background="#F3D986" />
+                <View style="@style/ColorCircle" android:background="#DDE0A8" />
+                <View style="@style/ColorCircle" android:background="#B7D6C6" />
+                <View style="@style/ColorCircle" android:background="#B5C7DE" />
+                <View style="@style/ColorCircle" android:background="#D5C9E3" />
+                <View style="@style/ColorCircle" android:background="#EDC9CF" />
+                <View style="@style/ColorCircle" android:background="#D9D5D2" />
             </LinearLayout>
         </HorizontalScrollView>
     </LinearLayout>

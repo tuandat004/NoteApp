@@ -1,79 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F7F3EF"
-    android:orientation="vertical"
-    android:padding="16dp">
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="‹ Back"
-            android:textColor="#7C736B"
-            android:textSize="14sp"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="Manage Tags"
-            android:textColor="#3A312B"
-            android:textSize="20sp"
-            android:textStyle="bold"/>
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="36dp"
-            android:layout_alignParentEnd="true"
-            android:background="@drawable/bg_btn_yellow"
-            android:text="Edit"
-            android:textAllCaps="false"
-            android:textColor="#3A312B"/>
-    </RelativeLayout>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="18dp"
-        android:text="Your Tags"
-        android:textColor="#6E655E"
-        android:textSize="16sp"/>
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:background="@drawable/bg_input"
         android:orientation="vertical"
-        android:padding="8dp">
+        android:padding="16dp">
 
-        <TextView style="@style/TagRow" android:text="Work" android:background="#F4F6F7"/>
-        <TextView style="@style/TagRow" android:text="Study" android:background="#F6EFD9"/>
-        <TextView style="@style/TagRow" android:text="Personal" android:background="#E8F0E3"/>
-        <TextView style="@style/TagRow" android:text="Ideas" android:background="#EDE0F5"/>
-        <TextView style="@style/TagRow" android:text="+ Add Tag" android:background="#FBF8F6"/>
-    </LinearLayout>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-    <HorizontalScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="18dp"
-        android:scrollbars="none">
+            <TextView
+                android:id="@+id/txtBack"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="‹ Back"
+                android:textColor="#7C726A"
+                android:textSize="14sp" />
 
-        <LinearLayout
+            <TextView
+                android:id="@+id/txtTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="Manage Tags"
+                android:textColor="#2F2925"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btnEdit"
+                android:layout_width="76dp"
+                android:layout_height="40dp"
+                android:layout_alignParentEnd="true"
+                android:background="@drawable/bg_btn_yellow"
+                android:text="Edit"
+                android:textAllCaps="false"
+                android:textColor="#2F2925"
+                android:textStyle="bold" />
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/txtYourTags"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_marginTop="24dp"
+            android:text="Your Tags"
+            android:textColor="#5D534B"
+            android:textSize="16sp" />
 
-            <TextView style="@style/TagChipGray" android:text="+ Tag"/>
-            <TextView style="@style/TagChipGreen" android:text="Work"/>
-            <TextView style="@style/TagChipYellow" android:text="Personal"/>
-            <TextView style="@style/TagChipGray" android:text="+"/>
+        <LinearLayout
+            android:id="@+id/layoutTagBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_manage_tag_box"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <LinearLayout
+                android:id="@+id/layoutTagList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+            <TextView
+                android:id="@+id/txtAddTag"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="18dp"
+                android:text="+ Add Tag"
+                android:textColor="#4A4039"
+                android:textSize="18sp" />
         </LinearLayout>
-    </HorizontalScrollView>
-</LinearLayout>
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:id="@+id/layoutBottomTagChips"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" />
+        </HorizontalScrollView>
+
+    </LinearLayout>
+</ScrollView>

@@ -86,22 +86,54 @@
             android:textColor="#2E2A27"
             android:textColorHint="#A69D95"/>
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Tags"
+            android:textColor="#3A312B"
+            android:textStyle="bold"
+            android:textSize="16sp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/edtTagInput"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_input"
+                android:hint="Nhập tag"
+                android:paddingHorizontal="14dp"
+                android:textColor="#2E2A27"
+                android:textColorHint="#A69D95"/>
+
+            <Button
+                android:id="@+id/btnAddTag"
+                android:layout_width="wrap_content"
+                android:layout_height="52dp"
+                android:layout_marginStart="10dp"
+                android:background="@drawable/bg_btn_yellow"
+                android:text="+ Tag"
+                android:textAllCaps="false"
+                android:textColor="#3A312B"/>
+        </LinearLayout>
+
         <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="12dp"
             android:scrollbars="none">
 
             <LinearLayout
+                android:id="@+id/layoutTagsContainer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView style="@style/TagChipGray" android:text="+ Tag"/>
-                <TextView style="@style/TagChipBlue" android:text="Work"/>
-                <TextView style="@style/TagChipGreen" android:text="Personal"/>
-                <TextView style="@style/TagChipPurple" android:text="Ideas"/>
-            </LinearLayout>
+                android:orientation="horizontal"/>
         </HorizontalScrollView>
 
         <LinearLayout
