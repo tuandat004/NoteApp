@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Notes</string>
+    <string name="cancel">Cancel</string>
+    <string name="create_note">Create Note</string>
+    <string name="save">Save</string>
+    <string name="create_new_account">Create a new account</string>
+    <string name="title_hint">Tạo tiêu đề</string>
+    <string name="subtitle_hint">Tạo phụ đề</string>
+    <string name="content_hint">Nội dung ghi chú...</string>
 </resources>

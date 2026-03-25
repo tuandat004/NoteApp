@@ -1,7 +1,13 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.NoteApp" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+    <style name="Base.Theme.NoteApp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#F3C64E</item>
+        <item name="colorPrimaryVariant">#E5B93C</item>
+        <item name="colorOnPrimary">#3A312B</item>
+        <item name="colorSecondary">#D7E8D7</item>
+        <item name="colorOnSecondary">#3A312B</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/black</item>
     </style>
+
+    <style name="Theme.NoteApp" parent="Base.Theme.NoteApp" />
 </resources>

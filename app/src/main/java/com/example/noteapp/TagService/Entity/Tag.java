@@ -1,0 +1,15 @@
+package com.example.noteapp.TagService.Entity;
+
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
+@Entity(tableName = "tags")
+public class Tag {
+    @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = "tag_id")
+    public int tagId;
+
+    @ColumnInfo(name = "tag_name")
+    public String tagName;
+}

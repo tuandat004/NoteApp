@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F7F3EF"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="‹ Back"
+            android:textColor="#7C736B"
+            android:textSize="14sp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="Manage Tags"
+            android:textColor="#3A312B"
+            android:textSize="20sp"
+            android:textStyle="bold"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:layout_alignParentEnd="true"
+            android:background="@drawable/bg_btn_yellow"
+            android:text="Edit"
+            android:textAllCaps="false"
+            android:textColor="#3A312B"/>
+    </RelativeLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:text="Your Tags"
+        android:textColor="#6E655E"
+        android:textSize="16sp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/bg_input"
+        android:orientation="vertical"
+        android:padding="8dp">
+
+        <TextView style="@style/TagRow" android:text="Work" android:background="#F4F6F7"/>
+        <TextView style="@style/TagRow" android:text="Study" android:background="#F6EFD9"/>
+        <TextView style="@style/TagRow" android:text="Personal" android:background="#E8F0E3"/>
+        <TextView style="@style/TagRow" android:text="Ideas" android:background="#EDE0F5"/>
+        <TextView style="@style/TagRow" android:text="+ Add Tag" android:background="#FBF8F6"/>
+    </LinearLayout>
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView style="@style/TagChipGray" android:text="+ Tag"/>
+            <TextView style="@style/TagChipGreen" android:text="Work"/>
+            <TextView style="@style/TagChipYellow" android:text="Personal"/>
+            <TextView style="@style/TagChipGray" android:text="+"/>
+        </LinearLayout>
+    </HorizontalScrollView>
+</LinearLayout>

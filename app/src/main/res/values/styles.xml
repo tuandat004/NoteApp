@@ -1,0 +1,56 @@
+<resources>
+    <style name="TagChipBase">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginEnd">8dp</item>
+        <item name="android:paddingHorizontal">12dp</item>
+        <item name="android:paddingVertical">6dp</item>
+        <item name="android:textSize">13sp</item>
+    </style>
+
+    <style name="TagChipSelected" parent="TagChipBase">
+        <item name="android:background">#F3D36D</item>
+        <item name="android:textColor">#5E4D22</item>
+    </style>
+
+    <style name="TagChipYellow" parent="TagChipBase">
+        <item name="android:background">#F8E5A6</item>
+        <item name="android:textColor">#6A5A29</item>
+    </style>
+
+    <style name="TagChipBlue" parent="TagChipBase">
+        <item name="android:background">#CFE0F2</item>
+        <item name="android:textColor">#45617F</item>
+    </style>
+
+    <style name="TagChipGreen" parent="TagChipBase">
+        <item name="android:background">#D7E8D7</item>
+        <item name="android:textColor">#4F6D4F</item>
+    </style>
+
+    <style name="TagChipPurple" parent="TagChipBase">
+        <item name="android:background">#E7D7F1</item>
+        <item name="android:textColor">#6A5683</item>
+    </style>
+
+    <style name="TagChipGray" parent="TagChipBase">
+        <item name="android:background">#EDE7E2</item>
+        <item name="android:textColor">#6E655E</item>
+    </style>
+
+    <style name="ColorCircle">
+        <item name="android:layout_width">26dp</item>
+        <item name="android:layout_height">26dp</item>
+        <item name="android:layout_marginEnd">10dp</item>
+    </style>
+
+    <style name="TagRow">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:layout_marginBottom">10dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingHorizontal">14dp</item>
+        <item name="android:textColor">#4D4741</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+</resources>

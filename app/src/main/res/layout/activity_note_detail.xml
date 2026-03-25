@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F7F3EF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="‹ Back"
+                android:textColor="#7C736B"
+                android:textSize="14sp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="Project Meeting"
+                android:textColor="#3A312B"
+                android:textSize="20sp"
+                android:textStyle="bold"/>
+
+            <Button
+                android:id="@+id/btnEdit"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_alignParentEnd="true"
+                android:background="@drawable/bg_btn_yellow"
+                android:text="Edit"
+                android:textAllCaps="false"
+                android:textColor="#3A312B"/>
+        </RelativeLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Project Meeting"
+            android:textColor="#2E2A27"
+            android:textSize="30sp"
+            android:textStyle="bold"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal">
+
+            <TextView style="@style/TagChipYellow" android:text="Work"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="Today, 9:41 AM"
+                android:textColor="#9A9189"
+                android:textSize="13sp"/>
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_link_chip"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="5dp"
+            android:text="dailyplanner.com"
+            android:textColor="#7C8DA5"
+            android:textSize="12sp"/>
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginTop="14dp"
+            android:scaleType="centerCrop"
+            android:background="@drawable/bg_image_thumb"
+            android:src="@android:drawable/ic_menu_gallery"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:lineSpacingExtra="4dp"
+            android:text="Discussed project milestones and upcoming tasks.\n\nAssigned responsibilities to team members:\n• John - Design phase\n• Alice - Backend development\n• Mark - Testing QA"
+            android:textColor="#4E4741"
+            android:textSize="16sp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_reminder_box"
+            android:padding="14dp"
+            android:text="🔔  Next Meeting: Friday at 10:00 AM"
+            android:textColor="#7B6747"
+            android:textSize="15sp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_link_chip"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="5dp"
+            android:text="dailyplanner.com"
+            android:textColor="#7C8DA5"
+            android:textSize="12sp"/>
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_input"
+            android:padding="12dp"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <View style="@style/ColorCircle" android:background="#F3D986"/>
+                <View style="@style/ColorCircle" android:background="#DDE0A8"/>
+                <View style="@style/ColorCircle" android:background="#B7D6C6"/>
+                <View style="@style/ColorCircle" android:background="#B5C7DE"/>
+                <View style="@style/ColorCircle" android:background="#D5C9E3"/>
+                <View style="@style/ColorCircle" android:background="#EDC9CF"/>
+                <View style="@style/ColorCircle" android:background="#D9D5D2"/>
+            </LinearLayout>
+        </HorizontalScrollView>
+    </LinearLayout>
+</ScrollView>
