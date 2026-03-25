@@ -106,6 +106,7 @@
         </HorizontalScrollView>
     </LinearLayout>
 
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvNotes"
         android:layout_width="0dp"
