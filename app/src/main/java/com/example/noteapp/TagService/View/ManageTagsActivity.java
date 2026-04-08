@@ -16,6 +16,7 @@ import com.example.noteapp.TagService.Entity.Tag;
 
 import java.util.List;
 import java.util.concurrent.Executors;
+import android.content.SharedPreferences;
 
 public class ManageTagsActivity extends AppCompatActivity {
 
@@ -26,6 +27,7 @@ public class ManageTagsActivity extends AppCompatActivity {
     private LinearLayout layoutBottomTagChips;
 
     private boolean isEditMode = false;
+    private int sessionUserId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +39,9 @@ public class ManageTagsActivity extends AppCompatActivity {
         btnEdit = findViewById(R.id.btnEdit);
         layoutTagList = findViewById(R.id.layoutTagList);
         layoutBottomTagChips = findViewById(R.id.layoutBottomTagChips);
+
+        SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
+        sessionUserId = prefs.getInt("user_id", -1);
 
         txtBack.setOnClickListener(v -> finish());
         txtAddTag.setOnClickListener(v -> showAddTagDialog());
@@ -75,10 +80,11 @@ public class ManageTagsActivity extends AppCompatActivity {
         Executors.newSingleThreadExecutor().execute(() -> {
             AppDatabase db = AppDatabase.getInstance(getApplicationContext());
 
-            Tag exist = db.tagDao().getTagByName(tagName);
+            Tag exist = db.tagDao().getTagByName(tagName, sessionUserId);
             if (exist == null) {
                 Tag tag = new Tag();
                 tag.tagName = tagName;
+                tag.userId = sessionUserId;
                 db.tagDao().insertTag(tag);
 
                 runOnUiThread(() -> {
@@ -97,7 +103,7 @@ public class ManageTagsActivity extends AppCompatActivity {
         Executors.newSingleThreadExecutor().execute(() -> {
             List<Tag> tags = AppDatabase.getInstance(getApplicationContext())
                     .tagDao()
-                    .getAllTags();
+                    .getAllTags(sessionUserId);
 
             runOnUiThread(() -> {
                 renderTags(tags);

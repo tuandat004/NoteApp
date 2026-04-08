@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey;
 
 @Entity(
         tableName = "tags",
-        indices = {@Index(value = "tag_name", unique = true)}
+        indices = {@Index(value = {"tag_name", "user_id"}, unique = true)}
 )
 public class Tag {
     @PrimaryKey(autoGenerate = true)
@@ -16,4 +16,7 @@ public class Tag {
 
     @ColumnInfo(name = "tag_name")
     public String tagName;
+
+    @ColumnInfo(name = "user_id", defaultValue = "0")
+    public int userId;
 }

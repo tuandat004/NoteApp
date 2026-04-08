@@ -4,83 +4,96 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="10dp"
-    app:cardCornerRadius="18dp"
-    app:cardElevation="1dp"
-    app:strokeColor="#EEE5DE"
+    android:layout_marginHorizontal="12dp"
+    app:cardCornerRadius="14dp"
+    app:cardElevation="2dp"
+    app:strokeColor="@color/color_divider"
     app:strokeWidth="1dp">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#FFFDFC"
-        android:orientation="horizontal"
-        android:padding="14dp">
+        android:minHeight="80dp">
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:id="@+id/contentLayout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/txtTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Project Meeting"
-                    android:textColor="#2E2A27"
-                    android:textSize="20sp"
-                    android:textStyle="bold"/>
-
-                <TextView
-                    android:id="@+id/txtTime"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:text="Just now"
-                    android:textColor="#8C847D"
-                    android:textSize="12sp"/>
-            </RelativeLayout>
+            android:orientation="vertical"
+            android:paddingTop="16dp"
+            android:paddingStart="16dp"
+            android:paddingBottom="16dp"
+            android:paddingEnd="110dp">
 
             <TextView
-                style="@style/TagChipYellow"
-                android:layout_marginTop="8dp"
-                android:text="Work"/>
+                android:id="@+id/txtTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Project Meeting"
+                android:textColor="@color/text_primary_app"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:maxLines="2"
+                android:ellipsize="end"/>
 
             <TextView
                 android:id="@+id/txtContent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:maxLines="2"
+                android:layout_marginTop="6dp"
+                android:maxLines="3"
                 android:ellipsize="end"
                 android:text="Discussed project milestones and upcoming tasks..."
-                android:textColor="#5E5751"
+                android:textColor="@color/text_secondary_app"
                 android:textSize="14sp"/>
 
             <TextView
                 android:id="@+id/txtLink"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="8dp"
                 android:background="@drawable/bg_link_chip"
                 android:paddingHorizontal="10dp"
-                android:paddingVertical="5dp"
+                android:paddingVertical="4dp"
                 android:text="dailyplanner.com"
                 android:textColor="#7C8DA5"
-                android:textSize="12sp"/>
+                android:textSize="12sp"
+                android:visibility="gone"/>
         </LinearLayout>
 
-        <ImageView
-            android:id="@+id/imgThumb"
-            android:layout_width="78dp"
-            android:layout_height="78dp"
-            android:layout_marginStart="12dp"
-            android:scaleType="centerCrop"
-            android:src="@android:drawable/ic_menu_gallery"
-            android:background="@drawable/bg_image_thumb"/>
-    </LinearLayout>
+        <!-- Thời gian: trên cùng bên phải -->
+        <TextView
+            android:id="@+id/txtTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:text="Vừa xong"
+            android:textColor="#5E5751"
+            android:textSize="12sp"
+            android:gravity="end"/>
+
+        <!-- Góc dưới phải: Ảnh thumbnail -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="36dp">
+
+            <!-- Ảnh thumbnail nhỏ ở góc dưới phải lớn hơn trước -->
+            <ImageView
+                android:id="@+id/imgThumb"
+                android:layout_width="84dp"
+                android:layout_height="84dp"
+                android:scaleType="centerCrop"
+                android:background="@drawable/bg_image_thumb"
+                android:visibility="gone"/>
+        </LinearLayout>
+
+    </RelativeLayout>
+
 </com.google.android.material.card.MaterialCardView>

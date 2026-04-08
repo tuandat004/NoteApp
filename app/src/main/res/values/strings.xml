@@ -1,11 +1,47 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Notes</string>
-    <string name="cancel">Cancel</string>
-    <string name="create_note">Create Note</string>
-    <string name="save">Save</string>
-    <string name="create_new_account">Create a new account</string>
-    <string name="title_hint">Tạo tiêu đề</string>
-    <string name="subtitle_hint">Tạo phụ đề</string>
-    <string name="content_hint">Nội dung ghi chú...</string>
+    <string name="app_name">NoteApp</string>
+
+    <!-- Account -->
+    <string name="login">Đăng nhập</string>
+    <string name="register">Đăng ký</string>
+    <string name="logout">Đăng xuất</string>
+    <string name="forgot_password">Quên mật khẩu</string>
+    <string name="send_otp">Gửi mã OTP</string>
+    <string name="verify_otp">Xác nhận OTP</string>
+    <string name="reset_password">Đặt lại mật khẩu</string>
+    <string name="resend_code">Gửi lại mã</string>
+    <string name="continue_google">Tiếp tục với Google</string>
+    <string name="continue_facebook">Tiếp tục với Facebook</string>
+    <string name="no_account">Chưa có tài khoản?</string>
+    <string name="have_account">Đã có tài khoản?</string>
+
+    <!-- Profile -->
+    <string name="profile">Hồ sơ</string>
+    <string name="edit_profile">Chỉnh sửa hồ sơ</string>
+    <string name="full_name">Họ và tên</string>
+    <string name="phone_number">Số điện thoại</string>
+    <string name="save_changes">Lưu thay đổi</string>
+    <string name="update_avatar">Cập nhật ảnh đại diện</string>
+    <string name="member_since">Thành viên từ</string>
+
+    <!-- Notification -->
+    <string name="notifications">Thông báo</string>
+    <string name="no_notifications">Chưa có thông báo</string>
+    <string name="mark_all_read">Đánh dấu tất cả đã đọc</string>
+    <string name="notification_channel_id">noteapp_notifications</string>
+    <string name="notification_channel_name">NoteApp Notifications</string>
+
+    <!-- Reminder -->
+    <string name="reminders">Nhắc nhở</string>
+    <string name="add_reminder">Thêm nhắc nhở</string>
+    <string name="reminder_time">Thời gian nhắc nhở</string>
+    <string name="no_reminders">Chưa có nhắc nhở nào</string>
+    <string name="reminder_channel_id">noteapp_reminders</string>
+    <string name="reminder_channel_name">Nhắc nhở ghi chú</string>
+    <string name="reminder_channel_desc">Thông báo nhắc nhở ghi chú của bạn</string>
+    <string name="delete_reminder">Xóa nhắc nhở</string>
+    <string name="reminder_set_success">Đã đặt nhắc nhở thành công</string>
+
+    <!-- Facebook -->
+    <string name="facebook_app_id">26844074368533647</string>
 </resources>

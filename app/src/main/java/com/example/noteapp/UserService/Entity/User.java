@@ -26,9 +26,28 @@ public class User {
     @ColumnInfo(name = "password")
     public String password;
 
+    @ColumnInfo(name = "full_name")
+    public String fullName;
+
+    @ColumnInfo(name = "phone")
+    public String phone;
+
     @ColumnInfo(name = "avatar")
     public String avatar;
 
+    // "local" | "google" | "facebook"
+    @ColumnInfo(name = "login_type", defaultValue = "local")
+    public String loginType;
+
+    @ColumnInfo(name = "google_id")
+    public String googleId;
+
+    @ColumnInfo(name = "facebook_id")
+    public String facebookId;
+
     @ColumnInfo(name = "created_at", defaultValue = "CURRENT_TIMESTAMP")
     public String createdAt;
+
+    @ColumnInfo(name = "updated_at", defaultValue = "CURRENT_TIMESTAMP")
+    public String updatedAt;
 }

@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F7F3EF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- HEADER -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:id="@+id/btnBack"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="4dp"
+                android:gravity="center_vertical"
+                android:background="?attr/selectableItemBackgroundBorderless">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_back"
+                    app:tint="#2E2A27"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Back"
+                    android:textSize="16sp"
+                    android:textColor="#2E2A27"
+                    android:textStyle="bold"
+                    android:layout_marginStart="6dp"/>
+            </LinearLayout>
+
+        </RelativeLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Profile"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:textColor="#2E2A27"
+            android:gravity="center"
+            android:layout_marginTop="16dp"/>
+
+        <!-- AVATAR -->
+        <FrameLayout
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="24dp">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/imgProfileAvatar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_user"
+                app:civ_border_width="2dp"
+                app:civ_border_color="#F3C64E"/>
+
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="bottom|end"
+                android:src="@android:drawable/ic_menu_camera"
+                android:background="@drawable/bg_circle_avatar"
+                android:padding="6dp"
+                android:elevation="4dp"/>
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/tvUsername"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="\@username"
+            android:textColor="#888"
+            android:textSize="16sp"
+            android:gravity="center"
+            android:layout_marginTop="8dp"/>
+
+        <!-- FULL NAME -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Full Name"
+            android:textColor="#2E2A27"
+            android:textStyle="bold"
+            android:layout_marginTop="32dp"
+            android:layout_marginStart="4dp"/>
+        <EditText
+            android:id="@+id/edtFullName"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:background="@drawable/bg_input"
+            android:paddingHorizontal="16dp"
+            android:hint="Enter your full name"
+            android:textColor="#000"
+            android:layout_marginTop="8dp"/>
+
+
+        <!-- PASSWORD -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Change Password (Optional)"
+            android:textColor="#2E2A27"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="4dp"/>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp">
+
+            <EditText
+                android:id="@+id/edtPassword"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:background="@drawable/bg_input"
+                android:paddingStart="16dp"
+                android:paddingEnd="48dp"
+                android:inputType="textPassword"
+                android:hint="Enter new password"
+                android:textColor="#000"/>
+
+            <ImageView
+                android:id="@+id/eyePassword"
+                android:layout_width="48dp"
+                android:layout_height="55dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:src="@android:drawable/ic_menu_view"
+                android:padding="12dp"
+                android:alpha="0.4"/>
+        </RelativeLayout>
+
+        <!-- EMAIL (READONLY) -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Email"
+            android:textColor="#2E2A27"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="4dp"/>
+        <EditText
+            android:id="@+id/edtEmail"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:background="@drawable/bg_input"
+            android:paddingHorizontal="16dp"
+            android:enabled="false"
+            android:alpha="0.7"
+            android:textColor="#000"
+            android:layout_marginTop="8dp"/>
+
+        <!-- DARK MODE TOGGLE -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="24dp"
+            android:layout_marginStart="4dp">
+            
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Chế độ tối (Dark Mode)"
+                android:textColor="#2E2A27"
+                android:textStyle="bold"
+                android:textSize="16sp"/>
+                
+            <Switch
+                android:id="@+id/switchDarkMode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <!-- BUTTON SAVE -->
+        <Button
+            android:id="@+id/btnSaveProfile"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:text="Save Changes"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#3A312B"
+            android:background="@drawable/bg_btn_yellow"
+            android:layout_marginTop="24dp"
+            android:textAllCaps="false"/>
+
+        <!-- BUTTON LOGOUT -->
+        <Button
+            android:id="@+id/btnLogout"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:text="Log Out"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#F44336"
+            android:backgroundTint="#00000000"
+            android:layout_marginTop="12dp"
+            android:textAllCaps="false"/>
+
+    </LinearLayout>
+</ScrollView>

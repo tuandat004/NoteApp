@@ -1,249 +1,401 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F7F3EF"
-    android:fillViewport="true">
+    android:orientation="vertical"
+    android:background="#F7F3EF">
 
-    <LinearLayout
+    <!-- Header: Cancel / Title / Save -->
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:id="@+id/txtCancel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Cancel"
-                android:textColor="#8A7F73"
-                android:textSize="14sp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:text="Create Note"
-                android:textColor="#3A312B"
-                android:textSize="20sp"
-                android:textStyle="bold"/>
-
-            <Button
-                android:id="@+id/btnSave"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:layout_alignParentEnd="true"
-                android:background="@drawable/bg_btn_yellow"
-                android:text="Save"
-                android:textAllCaps="false"
-                android:textColor="#3A312B"/>
-        </RelativeLayout>
+        android:padding="16dp"
+        android:background="#F7F3EF">
 
         <TextView
+            android:id="@+id/txtCancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:layout_gravity="center_horizontal"
-            android:text="Create a new account"
-            android:textColor="#A49B93"
+            android:layout_centerVertical="true"
+            android:text="Cancel"
+            android:textColor="#8A7F73"
             android:textSize="14sp"/>
 
-        <EditText
-            android:id="@+id/edtTitle"
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:layout_marginTop="20dp"
-            android:background="@drawable/bg_input"
-            android:hint="Tạo tiêu đề"
-            android:paddingHorizontal="14dp"
-            android:textColor="#2E2A27"
-            android:textColorHint="#A69D95"/>
-
-        <EditText
-            android:id="@+id/edtSubtitle"
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/bg_input"
-            android:hint="Tạo phụ đề"
-            android:paddingHorizontal="14dp"
-            android:textColor="#2E2A27"
-            android:textColorHint="#A69D95"/>
-
-        <EditText
-            android:id="@+id/edtContent"
-            android:layout_width="match_parent"
-            android:layout_height="120dp"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/bg_input"
-            android:gravity="top"
-            android:hint="Nội dung ghi chú..."
-            android:padding="14dp"
-            android:textColor="#2E2A27"
-            android:textColorHint="#A69D95"/>
-
         <TextView
+            android:id="@+id/txtHeaderTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Tags"
+            android:layout_centerInParent="true"
+            android:text="Create Note"
             android:textColor="#3A312B"
-            android:textStyle="bold"
-            android:textSize="16sp"/>
+            android:textSize="20sp"
+            android:textStyle="bold"/>
+
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/bg_btn_yellow"
+            android:text="Save"
+            android:textAllCaps="false"
+            android:textColor="#3A312B"/>
+    </RelativeLayout>
+
+    <!-- Scrollable content -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:orientation="horizontal">
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="16dp">
 
             <EditText
-                android:id="@+id/edtTagInput"
-                android:layout_width="0dp"
+                android:id="@+id/edtTitle"
+                android:layout_width="match_parent"
                 android:layout_height="52dp"
-                android:layout_weight="1"
                 android:background="@drawable/bg_input"
-                android:hint="Nhập tag"
+                android:hint="Tạo tiêu đề"
                 android:paddingHorizontal="14dp"
                 android:textColor="#2E2A27"
                 android:textColorHint="#A69D95"/>
 
-            <Button
-                android:id="@+id/btnAddTag"
-                android:layout_width="wrap_content"
+            <EditText
+                android:id="@+id/edtSubtitle"
+                android:layout_width="match_parent"
                 android:layout_height="52dp"
-                android:layout_marginStart="10dp"
-                android:background="@drawable/bg_btn_yellow"
-                android:text="+ Tag"
-                android:textAllCaps="false"
-                android:textColor="#3A312B"/>
-        </LinearLayout>
-
-        <HorizontalScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:scrollbars="none">
-
-            <LinearLayout
-                android:id="@+id/layoutTagsContainer"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"/>
-        </HorizontalScrollView>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:orientation="vertical"
-            android:background="@drawable/bg_input"
-            android:padding="12dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="44dp"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:background="@drawable/bg_action_chip"
-                    android:text="🔔 Remind me"
-                    android:textColor="#7B726B"/>
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="44dp"
-                    android:layout_weight="1"
-                    android:layout_marginStart="10dp"
-                    android:gravity="center"
-                    android:background="@drawable/bg_action_chip"
-                    android:text="🖼 Add Image"
-                    android:textColor="#7B726B"/>
-            </LinearLayout>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="44dp"
-                android:layout_marginTop="10dp"
-                android:gravity="center_vertical"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_input"
+                android:hint="Tạo phụ đề"
                 android:paddingHorizontal="14dp"
-                android:background="@drawable/bg_action_chip"
-                android:text="🔗 Insert Link"
-                android:textColor="#7B726B"/>
-        </LinearLayout>
+                android:textColor="#2E2A27"
+                android:textColorHint="#A69D95"/>
 
+            <!-- RichEditor content -->
+            <jp.wasabeef.richeditor.RichEditor
+                android:id="@+id/editor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="350dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_input"
+                android:padding="14dp"/>
+
+            <!-- Tags section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Tags"
+                android:textColor="#3A312B"
+                android:textStyle="bold"
+                android:textSize="16sp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
+
+                <!-- Tag input removed -->
+
+                <Button
+                    android:id="@+id/btnAddTag"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:background="@drawable/bg_btn_yellow"
+                    android:text="+ Thêm Tag"
+                    android:textAllCaps="false"
+                    android:textColor="#3A312B"/>
+            </LinearLayout>
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:id="@+id/layoutTagsContainer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"/>
+            </HorizontalScrollView>
+
+            <!-- Actions: Remind, Image, Link -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="vertical"
+                android:background="@drawable/bg_input"
+                android:padding="12dp">
+
+                <!-- Row 1: Remind + Add Image -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvRemindMe"
+                        android:layout_width="0dp"
+                        android:layout_height="44dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:background="@drawable/bg_action_chip"
+                        android:text="🔔 Remind me"
+                        android:textColor="#7B726B"/>
+
+                    <TextView
+                        android:id="@+id/tvAddImage"
+                        android:layout_width="0dp"
+                        android:layout_height="44dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="10dp"
+                        android:gravity="center"
+                        android:background="@drawable/bg_action_chip"
+                        android:text="🖼 Add Image"
+                        android:textColor="#7B726B"/>
+                </LinearLayout>
+
+                <!-- Image preview (hiện khi đã chọn ảnh) -->
+                <RelativeLayout
+                    android:id="@+id/layoutImagePreview"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:id="@+id/imgPreview"
+                        android:layout_width="72dp"
+                        android:layout_height="72dp"
+                        android:scaleType="centerCrop"
+                        android:background="@drawable/bg_image_thumb"/>
+
+                    <TextView
+                        android:id="@+id/btnRemoveImage"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:layout_toEndOf="@id/imgPreview"
+                        android:layout_alignTop="@id/imgPreview"
+                        android:layout_marginStart="-11dp"
+                        android:layout_marginTop="-8dp"
+                        android:background="#CC333333"
+                        android:text="✕"
+                        android:textColor="#FFFFFF"
+                        android:textSize="12sp"
+                        android:gravity="center"/>
+
+                    <TextView
+                        android:id="@+id/txtImageName"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_toEndOf="@id/imgPreview"
+                        android:layout_alignBottom="@id/imgPreview"
+                        android:layout_alignParentEnd="true"
+                        android:layout_marginStart="12dp"
+                        android:maxLines="2"
+                        android:ellipsize="end"
+                        android:text="image.png"
+                        android:textColor="#5F5650"
+                        android:textSize="13sp"/>
+                </RelativeLayout>
+
+                <!-- Row 2: Insert Link + Note Color -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvInsertLink"
+                        android:layout_width="0dp"
+                        android:layout_height="44dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:background="@drawable/bg_action_chip"
+                        android:text="🔗 Insert Link"
+                        android:textColor="#7B726B"/>
+
+                    <TextView
+                        android:id="@+id/tvNoteColor"
+                        android:layout_width="0dp"
+                        android:layout_height="44dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="10dp"
+                        android:gravity="center"
+                        android:background="@drawable/bg_action_chip"
+                        android:text="🎨 Màu nền"
+                        android:textColor="#7B726B"/>
+                </LinearLayout>
+
+                <!-- Color picker row (hidden by default) -->
+                <HorizontalScrollView
+                    android:id="@+id/layoutColorPicker"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:layout_marginTop="10dp"
+                    android:background="#F5F0EC"
+                    android:scrollbars="none"
+                    android:paddingVertical="4dp"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="12dp"
+                        android:gravity="center_vertical">
+
+                        <View android:id="@+id/colorYellow" style="@style/ColorCircle" android:background="#F3D986"/>
+                        <View android:id="@+id/colorGreen" style="@style/ColorCircle" android:background="#DDE0A8"/>
+                        <View android:id="@+id/colorCyan" style="@style/ColorCircle" android:background="#B7D6C6"/>
+                        <View android:id="@+id/colorBlue" style="@style/ColorCircle" android:background="#B5C7DE"/>
+                        <View android:id="@+id/colorPurple" style="@style/ColorCircle" android:background="#D5C9E3"/>
+                        <View android:id="@+id/colorPink" style="@style/ColorCircle" android:background="#EDC9CF"/>
+                        <View android:id="@+id/colorGray" style="@style/ColorCircle" android:background="#D9D5D2"/>
+                        <View android:id="@+id/colorBlack" style="@style/ColorCircle" android:background="#2E2A27"/>
+                    </LinearLayout>
+                </HorizontalScrollView>
+
+                <!-- List links đã thêm -->
+                <LinearLayout
+                    android:id="@+id/layoutLinksContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="8dp"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Floating Formatting Toolbar - hiện khi focus vào editor -->
+    <LinearLayout
+        android:id="@+id/layoutFormattingToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#FFFFFF"
+        android:elevation="8dp"
+        android:visibility="gone">
+
+
+        <!-- Style buttons row -->
         <HorizontalScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/bg_input"
-            android:padding="12dp"
+            android:layout_height="48dp"
+            android:background="#FFFFFF"
             android:scrollbars="none">
 
             <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="14dp">
 
-                <View style="@style/ColorCircle" android:background="#F3D986"/>
-                <View style="@style/ColorCircle" android:background="#DDE0A8"/>
-                <View style="@style/ColorCircle" android:background="#B7D6C6"/>
-                <View style="@style/ColorCircle" android:background="#B5C7DE"/>
-                <View style="@style/ColorCircle" android:background="#D5C9E3"/>
-                <View style="@style/ColorCircle" android:background="#EDC9CF"/>
-                <View style="@style/ColorCircle" android:background="#D9D5D2"/>
+                <TextView
+                    android:id="@+id/btnBold"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:gravity="center"
+                    android:text="B"
+                    android:textColor="#5F5650"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:background="?attr/selectableItemBackgroundBorderless"/>
+
+                <TextView
+                    android:id="@+id/btnItalic"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="4dp"
+                    android:gravity="center"
+                    android:text="I"
+                    android:textColor="#5F5650"
+                    android:textSize="20sp"
+                    android:textStyle="italic"
+                    android:background="?attr/selectableItemBackgroundBorderless"/>
+
+                <TextView
+                    android:id="@+id/btnUnderline"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="4dp"
+                    android:gravity="center"
+                    android:text="U"
+                    android:textColor="#5F5650"
+                    android:textSize="20sp"
+                    android:background="?attr/selectableItemBackgroundBorderless"/>
+
+
+                <TextView
+                    android:id="@+id/btnBullets"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="22dp"
+                    android:text="•"
+                    android:textColor="#5F5650"
+                    android:textSize="22sp"/>
+
+                <TextView
+                    android:id="@+id/btnChecklist"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="22dp"
+                    android:text="☑"
+                    android:textColor="#5F5650"
+                    android:textSize="18sp"/>
+
+                <TextView
+                    android:id="@+id/btnTextSize"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="22dp"
+                    android:text="Cỡ chữ"
+                    android:textColor="#5F5650"
+                    android:textSize="16sp"/>
+
+                <TextView
+                    android:id="@+id/btnAlign"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="22dp"
+                    android:text="Lề"
+                    android:textColor="#5F5650"
+                    android:textSize="18sp"/>
+
+                <TextView
+                    android:id="@+id/btnTable"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="22dp"
+                    android:text="Bảng"
+                    android:textColor="#5F5650"
+                    android:textSize="18sp"/>
+
+                <!-- Nút ẩn toolbar -->
+                <TextView
+                    android:id="@+id/btnHideToolbar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="22dp"
+                    android:text="✕"
+                    android:textColor="#A0988F"
+                    android:textSize="18sp"/>
             </LinearLayout>
         </HorizontalScrollView>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:layout_marginTop="14dp"
-            android:background="@drawable/bg_input"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingHorizontal="14dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="B"
-                android:textColor="#5F5650"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="22dp"
-                android:text="I"
-                android:textColor="#5F5650"
-                android:textSize="20sp"
-                android:textStyle="italic" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="22dp"
-                android:text="•"
-                android:textColor="#5F5650"
-                android:textSize="22sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="22dp"
-                android:text="☑"
-                android:textColor="#5F5650"
-                android:textSize="18sp" />
-        </LinearLayout>
     </LinearLayout>
-</ScrollView>
+
+</LinearLayout>

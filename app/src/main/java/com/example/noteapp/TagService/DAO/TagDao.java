@@ -19,11 +19,11 @@ public interface TagDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     void insertNoteTag(NoteTag noteTag);
 
-    @Query("SELECT * FROM tags ORDER BY tag_name ASC")
-    List<Tag> getAllTags();
+    @Query("SELECT * FROM tags WHERE user_id = :userId ORDER BY tag_name ASC")
+    List<Tag> getAllTags(int userId);
 
-    @Query("SELECT * FROM tags WHERE tag_name = :tagName LIMIT 1")
-    Tag getTagByName(String tagName);
+    @Query("SELECT * FROM tags WHERE tag_name = :tagName AND user_id = :userId LIMIT 1")
+    Tag getTagByName(String tagName, int userId);
 
     @Query("SELECT t.* FROM tags t " +
             "INNER JOIN note_tags nt ON t.tag_id = nt.tag_id " +
@@ -39,12 +39,12 @@ public interface TagDao {
     @Query("DELETE FROM tags WHERE tag_id = :tagId")
     void deleteTagById(int tagId);
 
-    @Query("SELECT * FROM notes WHERE is_deleted = 0 ORDER BY note_id DESC")
-    List<com.example.noteapp.NoteService.Entity.Note> getAllNotesRaw();
+    @Query("SELECT * FROM notes WHERE is_deleted = 0 AND user_id = :userId ORDER BY note_id DESC")
+    List<com.example.noteapp.NoteService.Entity.Note> getAllNotesRaw(int userId);
 
     @Query("SELECT n.* FROM notes n " +
             "INNER JOIN note_tags nt ON n.note_id = nt.note_id " +
-            "WHERE nt.tag_id = :tagId AND n.is_deleted = 0 " +
+            "WHERE nt.tag_id = :tagId AND n.is_deleted = 0 AND n.user_id = :userId " +
             "ORDER BY n.note_id DESC")
-    List<com.example.noteapp.NoteService.Entity.Note> getNotesByTagId(int tagId);
+    List<com.example.noteapp.NoteService.Entity.Note> getNotesByTagId(int tagId, int userId);
 }

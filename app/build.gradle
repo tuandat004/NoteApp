@@ -4,9 +4,7 @@ plugins {
 
 android {
     namespace 'com.example.noteapp'
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk 36
 
     defaultConfig {
         applicationId "com.example.noteapp"
@@ -14,7 +12,6 @@ android {
         targetSdk 36
         versionCode 1
         versionName "1.0"
-
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -28,6 +25,18 @@ android {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
     }
+
+    packaging {
+        resources {
+            excludes += [
+                'META-INF/LICENSE.md',
+                'META-INF/NOTICE.md',
+                'META-INF/LICENSE-notice.md',
+                'META-INF/NOTICE',
+                'META-INF/LICENSE'
+            ]
+        }
+    }
 }
 
 dependencies {
@@ -35,16 +44,36 @@ dependencies {
     implementation libs.material
     implementation libs.activity
     implementation libs.constraintlayout
+
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
 
-
+    // Room Database
     implementation "androidx.room:room-runtime:2.6.1"
     annotationProcessor "androidx.room:room-compiler:2.6.1"
 
-    implementation "androidx.room:room-runtime:2.6.1"
-    annotationProcessor "androidx.room:room-compiler:2.6.1"
+    // LiveData & ViewModel
     implementation "androidx.lifecycle:lifecycle-livedata:2.8.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel:2.8.0"
+
+    // WorkManager (Reminder scheduler)
+    implementation "androidx.work:work-runtime:2.9.0"
+
+    // JavaMail for Android (Gmail OTP sending)
+    implementation 'com.sun.mail:android-mail:1.6.7'
+    implementation 'com.sun.mail:android-activation:1.6.7'
+
+    // Google Sign-In (standalone, no Firebase required)
+    implementation 'com.google.android.gms:play-services-auth:21.0.0'
+
+    // Glide (image loading for avatar)
+    implementation 'com.github.bumptech.glide:glide:4.16.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.16.0'
+
+    // CircleImageView (round avatar)
+    implementation 'de.hdodenhof:circleimageview:3.1.0'
+
+    // RichEditor for Notes (Tables, Image, Formatting)
+    implementation 'jp.wasabeef:richeditor-android:2.0.0'
 }

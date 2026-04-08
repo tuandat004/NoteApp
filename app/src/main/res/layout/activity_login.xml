@@ -97,6 +97,7 @@
                 android:textColorHint="#999"/>
 
             <ImageView
+                android:id="@+id/eyePassword"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:src="@drawable/ic_eye"/>
@@ -125,6 +126,14 @@
             android:background="@drawable/bg_button"
             android:layout_marginTop="16dp"
             android:textAllCaps="false"/>
+
+        <ProgressBar
+            android:id="@+id/progressLoading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            android:layout_marginTop="16dp"/>
 
         <!-- OR -->
         <LinearLayout
@@ -179,6 +188,7 @@
 
         <!-- GOOGLE -->
         <LinearLayout
+            android:id="@+id/btnGoogle"
             android:layout_width="match_parent"
             android:layout_height="65dp"
             android:background="@drawable/bg_social"
@@ -203,6 +213,7 @@
 
         <!-- FACEBOOK -->
         <LinearLayout
+            android:id="@+id/btnFacebook"
             android:layout_width="match_parent"
             android:layout_height="65dp"
             android:background="@drawable/bg_social"

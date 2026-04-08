@@ -2,6 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -30,6 +36,9 @@
             android:name=".AccountService.View.LoginActivity"
             android:exported="false"/>
         <activity
+            android:name=".UserService.View.UserProfileActivity"
+            android:exported="false"/>
+        <activity
             android:name=".MainActivity"
             android:exported="false" /> <!-- NoteService -->
         <activity
@@ -37,16 +46,33 @@
             android:exported="false" />
         <activity
             android:name=".NoteService.View.CreateNoteActivity"
+            android:windowSoftInputMode="adjustResize"
             android:exported="false" />
         <activity
             android:name=".NoteService.View.NoteDetailActivity"
-            android:exported="false" /> <!-- TagService -->
+            android:windowSoftInputMode="adjustResize"
+            android:exported="false" /> 
+
+        <activity
+            android:name=".NoteService.View.TrashActivity"
+            android:exported="false" />
+
+        <receiver
+            android:name=".ReminderService.Worker.ReminderReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- TagService -->
         <activity
             android:name=".TagService.View.ManageTagsActivity"
             android:exported="false" /> <!-- SearchService -->
         <activity
             android:name=".SearchService.View.SearchActivity"
             android:exported="false" />
+
     </application>
 
 </manifest>

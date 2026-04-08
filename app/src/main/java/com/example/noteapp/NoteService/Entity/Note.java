@@ -42,4 +42,7 @@ public class Note {
 
     @ColumnInfo(name = "is_deleted", defaultValue = "0")
     public int isDeleted;
+
+    @ColumnInfo(name = "deleted_at", defaultValue = "0")
+    public long deletedAt;
 }

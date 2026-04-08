@@ -1,24 +1,32 @@
 package com.example.noteapp.AccountService.View;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.InputType;
+import android.view.View;
 import android.widget.*;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.noteapp.Data.AppDatabase;
+import com.example.noteapp.NotificationService.Manager.AppNotificationManager;
+import com.example.noteapp.NoteService.View.NoteHomeActivity;
 import com.example.noteapp.R;
 import com.example.noteapp.UserService.DAO.UserDao;
 import com.example.noteapp.UserService.Entity.User;
-import com.example.noteapp.NoteService.View.NoteHomeActivity;
 
 public class LoginActivity extends AppCompatActivity {
 
     private EditText edtUsername, edtPassword;
     private Button btnLogin;
-    private UserDao userDao;
     private TextView tvRegister, tvForgot;
+    private ImageView eyePassword;
+    private LinearLayout btnGoogle, btnFacebook;
+    private ProgressBar progressLoading;
 
+    private UserDao userDao;
+    private boolean isShowPass = false;
     private int loginAttempt = 0;
 
     @Override
@@ -26,76 +34,114 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        // 🔥 Ánh xạ view
-        edtUsername = findViewById(R.id.edtUsername);
-        edtPassword = findViewById(R.id.edtPassword);
-        btnLogin = findViewById(R.id.btnLogin);
-        tvRegister = findViewById(R.id.tvRegister);
-        tvForgot = findViewById(R.id.tvForgot);
+        edtUsername     = findViewById(R.id.edtUsername);
+        edtPassword     = findViewById(R.id.edtPassword);
+        btnLogin        = findViewById(R.id.btnLogin);
+        tvRegister      = findViewById(R.id.tvRegister);
+        tvForgot        = findViewById(R.id.tvForgot);
+        eyePassword     = findViewById(R.id.eyePassword);
+        btnGoogle       = findViewById(R.id.btnGoogle);
+        btnFacebook     = findViewById(R.id.btnFacebook);
+        progressLoading = findViewById(R.id.progressLoading);
 
-        // 🔥 Lấy database
         userDao = AppDatabase.getInstance(this).userDao();
 
-        // 🔥 Bắt sự kiện login
+        // Khởi tạo kênh thông báo
+        AppNotificationManager.createChannels(this);
+
+        // Hiện/ẩn mật khẩu
+        eyePassword.setOnClickListener(v -> {
+            isShowPass = !isShowPass;
+            if (isShowPass) {
+                edtPassword.setInputType(InputType.TYPE_CLASS_TEXT);
+                eyePassword.setAlpha(1f);
+            } else {
+                edtPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                eyePassword.setAlpha(0.4f);
+            }
+            edtPassword.setSelection(edtPassword.length());
+        });
+
         btnLogin.setOnClickListener(v -> handleLogin());
 
-        // 👉 đi tới Register
-        tvRegister.setOnClickListener(v -> {
-            Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
-            startActivity(intent);
-        });
+        tvForgot.setOnClickListener(v ->
+            startActivity(new Intent(this, ForgotPasswordActivity.class))
+        );
 
-        // 👉 đi tới Forgot Password
-        tvForgot.setOnClickListener(v -> {
-            Intent intent = new Intent(LoginActivity.this, ForgotPasswordActivity.class);
-            startActivity(intent);
-        });
+        tvRegister.setOnClickListener(v ->
+            startActivity(new Intent(this, RegisterActivity.class))
+        );
+
+        // Đăng nhập Google/Facebook: tính năng đang phát triển
+        btnGoogle.setOnClickListener(v ->
+            Toast.makeText(this, "Tính năng này đang được tiến hành", Toast.LENGTH_SHORT).show()
+        );
+
+        btnFacebook.setOnClickListener(v ->
+            Toast.makeText(this, "Tính năng này đang được tiến hành", Toast.LENGTH_SHORT).show()
+        );
     }
 
+    // ─── Đăng nhập bằng username/password ────────────────────────────────────
     private void handleLogin() {
         String username = edtUsername.getText().toString().trim();
         String password = edtPassword.getText().toString().trim();
 
         if (username.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Vui lòng nhập đầy đủ", Toast.LENGTH_SHORT).show();
+            toast("Vui lòng nhập đầy đủ thông tin");
             return;
         }
 
+        setLoading(true);
+
         new Thread(() -> {
             User user = userDao.findByUsername(username);
-
             runOnUiThread(() -> {
-                if (user != null && user.password.equals(password)) {
-
+                setLoading(false);
+                if (user != null && user.password != null && user.password.equals(password)) {
                     loginAttempt = 0;
-
-                    // 🔥 lưu session
-                    getSharedPreferences("USER", MODE_PRIVATE)
-                            .edit()
-                            .putInt("user_id", user.userId)
-                            .putString("username", user.username)
-                            .putBoolean("isLoggedIn", true)
-                            .apply();
-
-                    Toast.makeText(this, "Đăng nhập thành công", Toast.LENGTH_SHORT).show();
-
-                    // 👉 chuyển màn hình
-                    Intent intent = new Intent(LoginActivity.this, NoteHomeActivity.class);
-                    startActivity(intent);
-                    finish();
-
+                    saveSession(user);
+                    toast("Đăng nhập thành công! Chào " + user.username);
+                    goToHome();
                 } else {
-
                     loginAttempt++;
-
-                    if (loginAttempt >= 3) {
+                    if (loginAttempt >= 5) {
                         btnLogin.setEnabled(false);
-                        Toast.makeText(this, "Bạn đã nhập sai 3 lần", Toast.LENGTH_LONG).show();
+                        toast("Đăng nhập sai 5 lần. Vui lòng thử lại sau.");
                     } else {
-                        Toast.makeText(this, "Sai tài khoản hoặc mật khẩu", Toast.LENGTH_SHORT).show();
+                        toast("Sai tài khoản hoặc mật khẩu (" + loginAttempt + "/5)");
                     }
                 }
             });
         }).start();
+    }
+
+    // ─── Helpers ──────────────────────────────────────────────────────────────
+    private void saveSession(User user) {
+        getSharedPreferences("USER", MODE_PRIVATE)
+            .edit()
+            .putInt("user_id", user.userId)
+            .putString("username", user.username)
+            .putString("email", user.email != null ? user.email : "")
+            .putString("full_name", user.fullName != null ? user.fullName : "")
+            .putString("avatar", user.avatar != null ? user.avatar : "")
+            .putBoolean("isLoggedIn", true)
+            .apply();
+    }
+
+    private void goToHome() {
+        Intent intent = new Intent(this, NoteHomeActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
+
+    private void setLoading(boolean loading) {
+        progressLoading.setVisibility(loading ? View.VISIBLE : View.GONE);
+        btnLogin.setEnabled(!loading);
+    }
+
+    private void toast(String msg) {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 }

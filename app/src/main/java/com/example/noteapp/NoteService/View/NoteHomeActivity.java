@@ -20,9 +20,17 @@ import com.example.noteapp.TagService.Entity.Tag;
 import com.example.noteapp.TagService.View.ManageTagsActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import com.bumptech.glide.Glide;
+import com.example.noteapp.UserService.DAO.UserDao;
+import com.example.noteapp.UserService.Entity.User;
+import com.example.noteapp.UserService.View.UserProfileActivity;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
+import android.content.SharedPreferences;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 public class NoteHomeActivity extends AppCompatActivity {
 
@@ -34,8 +42,14 @@ public class NoteHomeActivity extends AppCompatActivity {
     private TextView btnManageTags;
     private LinearLayout layoutTagChips;
 
+    private ImageView imgAvatar;
+    private TextView tvUserName;
+    private UserDao userDao;
+    private int sessionUserId;
+
     private final List<Tag> allTags = new ArrayList<>();
     private Integer selectedTagId = null; // null = All
+    private final java.util.concurrent.ExecutorService executorService = java.util.concurrent.Executors.newFixedThreadPool(4);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +62,12 @@ public class NoteHomeActivity extends AppCompatActivity {
         rvNotes = findViewById(R.id.rvNotes);
         btnManageTags = findViewById(R.id.btnManageTags);
         layoutTagChips = findViewById(R.id.layoutTagChips);
+        imgAvatar = findViewById(R.id.imgAvatar);
+        tvUserName = findViewById(R.id.tvUserName);
+
+        userDao = AppDatabase.getInstance(this).userDao();
+        SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
+        sessionUserId = prefs.getInt("user_id", -1);
 
         rvNotes.setLayoutManager(new LinearLayoutManager(this));
         adapter = new NoteAdapter(this);
@@ -63,6 +83,50 @@ public class NoteHomeActivity extends AppCompatActivity {
         btnManageTags.setOnClickListener(v ->
                 startActivity(new Intent(this, ManageTagsActivity.class))
         );
+
+        TextView btnTrash = findViewById(R.id.btnTrash);
+        btnTrash.setOnClickListener(v -> 
+                startActivity(new Intent(this, TrashActivity.class))
+        );
+
+        adapter.setOnNoteClickListener(note -> {
+            Intent intent = new Intent(this, NoteDetailActivity.class);
+            intent.putExtra("note_id", note.noteId);
+            startActivity(intent);
+        });
+
+        adapter.setOnNoteLongClickListener(note -> {
+            android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(this)
+                .setTitle("Xóa Ghi Chú")
+                .setMessage("Chuyển ghi chú này vào thùng rác?")
+                .setPositiveButton("Xóa", (d, which) -> {
+                    Executors.newSingleThreadExecutor().execute(() -> {
+                        AppDatabase db = AppDatabase.getInstance(getApplicationContext());
+                        db.noteDao().softDeleteNote(note.noteId, System.currentTimeMillis());
+                        runOnUiThread(() -> {
+                            Toast.makeText(this, "Đã chuyển vào thùng rác", Toast.LENGTH_SHORT).show();
+                            loadNotes();
+                        });
+                    });
+                })
+                .setNegativeButton("Hủy", null)
+                .create();
+                
+            dialog.setOnShowListener(d -> {
+                dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE)
+                      .setTextColor(getResources().getColor(R.color.btn_delete_text));
+            });
+            dialog.show();
+        });
+
+        rvNotes.setAdapter(adapter);
+
+        imgAvatar.setOnClickListener(v -> 
+                startActivity(new Intent(this, UserProfileActivity.class))
+        );
+        tvUserName.setOnClickListener(v -> 
+                startActivity(new Intent(this, UserProfileActivity.class))
+        );
     }
 
     @Override
@@ -70,6 +134,22 @@ public class NoteHomeActivity extends AppCompatActivity {
         super.onResume();
         loadTags();
         loadNotes();
+        loadUserProfile();
+    }
+
+    private void loadUserProfile() {
+        if (sessionUserId == -1) return;
+        executorService.execute(() -> {
+            User user = userDao.getUserById(sessionUserId);
+            runOnUiThread(() -> {
+                if (user != null) {
+                    tvUserName.setText((user.fullName != null && !user.fullName.isEmpty()) ? user.fullName : user.username);
+                    if (user.avatar != null && !user.avatar.isEmpty()) {
+                        Glide.with(this).load(user.avatar).into(imgAvatar);
+                    }
+                }
+            });
+        });
     }
 
     private void openCreate() {
@@ -77,10 +157,10 @@ public class NoteHomeActivity extends AppCompatActivity {
     }
 
     private void loadTags() {
-        Executors.newSingleThreadExecutor().execute(() -> {
+        executorService.execute(() -> {
             List<Tag> tags = AppDatabase.getInstance(getApplicationContext())
                     .tagDao()
-                    .getAllTags();
+                    .getAllTags(sessionUserId);
 
             runOnUiThread(() -> {
                 allTags.clear();
@@ -160,14 +240,14 @@ public class NoteHomeActivity extends AppCompatActivity {
     }
 
     private void loadNotes() {
-        Executors.newSingleThreadExecutor().execute(() -> {
+        executorService.execute(() -> {
             List<Note> notes;
             AppDatabase db = AppDatabase.getInstance(getApplicationContext());
 
             if (selectedTagId == null) {
-                notes = db.tagDao().getAllNotesRaw();
+                notes = db.tagDao().getAllNotesRaw(sessionUserId);
             } else {
-                notes = db.tagDao().getNotesByTagId(selectedTagId);
+                notes = db.tagDao().getNotesByTagId(selectedTagId, sessionUserId);
             }
 
             runOnUiThread(() -> adapter.setData(notes));

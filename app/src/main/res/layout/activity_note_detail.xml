@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rootLayoutDetail"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F7F3EF">
+    android:background="@color/bg_app">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -19,7 +19,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="‹ Back"
-                android:textColor="#7C736B"
+                android:textColor="@color/text_secondary_app"
                 android:textSize="14sp" />
 
             <TextView
@@ -28,19 +28,46 @@
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:text=""
-                android:textColor="#3A312B"
+                android:textColor="@color/text_primary_app"
                 android:textSize="20sp"
+                android:visibility="gone"
                 android:textStyle="bold" />
 
-            <Button
-                android:id="@+id/btnEdit"
+            <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="36dp"
+                android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
-                android:background="@drawable/bg_btn_yellow"
-                android:text="Edit"
-                android:textAllCaps="false"
-                android:textColor="#3A312B" />
+                android:orientation="horizontal">
+                
+                <Button
+                    android:id="@+id/btnExportPdf"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/bg_input"
+                    android:text="PDF"
+                    android:textAllCaps="false"
+                    android:textColor="@color/text_primary_app" />
+
+                <Button
+                    android:id="@+id/btnDelete"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/bg_btn_yellow"
+                    android:text="Xóa"
+                    android:textAllCaps="false"
+                    android:textColor="@color/btn_delete_text" />
+
+                <Button
+                    android:id="@+id/btnEdit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:background="@drawable/bg_btn_yellow"
+                    android:text="Edit"
+                    android:textAllCaps="false"
+                    android:textColor="@color/btn_yellow_text" />
+            </LinearLayout>
         </RelativeLayout>
 
         <TextView
@@ -49,7 +76,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:text=""
-            android:textColor="#2E2A27"
+            android:textColor="@color/text_primary_app"
             android:textSize="30sp"
             android:textStyle="bold" />
 
@@ -70,7 +97,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:text=""
-                android:textColor="#9A9189"
+                android:textColor="@color/text_secondary_app"
                 android:textSize="13sp" />
         </LinearLayout>
 
@@ -94,15 +121,12 @@
             android:background="@drawable/bg_image_thumb"
             android:scaleType="centerCrop" />
 
-        <TextView
-            android:id="@+id/txtContent"
+        <WebView
+            android:id="@+id/webViewContent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
-            android:lineSpacingExtra="4dp"
-            android:text=""
-            android:textColor="#4E4741"
-            android:textSize="16sp" />
+            android:background="#00000000" />
 
         <TextView
             android:id="@+id/txtReminder"
@@ -118,38 +142,16 @@
 
         <TextView
             android:id="@+id/txtLink"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/bg_link_chip"
-            android:paddingHorizontal="10dp"
-            android:paddingVertical="5dp"
-            android:text=""
-            android:textColor="#7C8DA5"
-            android:textSize="12sp"
-            android:visibility="gone" />
-
-        <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/bg_input"
-            android:padding="12dp"
-            android:scrollbars="none">
+            android:layout_marginTop="12dp"
+            android:padding="8dp"
+            android:text=""
+            android:textColor="@color/text_primary_app"
+            android:textColorLink="#2074D4"
+            android:textSize="15sp"
+            android:lineSpacingExtra="4dp"
+            android:visibility="gone" />
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <View style="@style/ColorCircle" android:background="#F3D986" />
-                <View style="@style/ColorCircle" android:background="#DDE0A8" />
-                <View style="@style/ColorCircle" android:background="#B7D6C6" />
-                <View style="@style/ColorCircle" android:background="#B5C7DE" />
-                <View style="@style/ColorCircle" android:background="#D5C9E3" />
-                <View style="@style/ColorCircle" android:background="#EDC9CF" />
-                <View style="@style/ColorCircle" android:background="#D9D5D2" />
-            </LinearLayout>
-        </HorizontalScrollView>
     </LinearLayout>
 </ScrollView>
