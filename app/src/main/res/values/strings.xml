@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">NoteApp</string>
+    <string name="app_name">QQ Notes</string>
 
     <!-- Account -->
     <string name="login">Đăng nhập</string>
