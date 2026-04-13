@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/rootLayoutDetail"
     android:layout_width="match_parent"
@@ -10,6 +11,7 @@
         android:orientation="vertical"
         android:padding="16dp">
 
+        <!-- Header: Back / Buttons -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -18,6 +20,7 @@
                 android:id="@+id/txtBack"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
                 android:text="‹ Back"
                 android:textColor="@color/text_secondary_app"
                 android:textSize="14sp" />
@@ -33,17 +36,30 @@
                 android:visibility="gone"
                 android:textStyle="bold" />
 
+            <!-- Nhóm nút hành động -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
                 android:orientation="horizontal">
-                
+
+                <Button
+                    android:id="@+id/btnTranslate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:layout_marginEnd="6dp"
+                    android:background="@drawable/bg_action_chip"
+                    android:text="🌐 Dịch"
+                    android:textAllCaps="false"
+                    android:textColor="@color/text_primary_app"
+                    android:textSize="13sp"/>
+
                 <Button
                     android:id="@+id/btnExportPdf"
                     android:layout_width="wrap_content"
                     android:layout_height="36dp"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginEnd="6dp"
                     android:background="@drawable/bg_input"
                     android:text="PDF"
                     android:textAllCaps="false"
@@ -53,7 +69,7 @@
                     android:id="@+id/btnDelete"
                     android:layout_width="wrap_content"
                     android:layout_height="36dp"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginEnd="6dp"
                     android:background="@drawable/bg_btn_yellow"
                     android:text="Xóa"
                     android:textAllCaps="false"
@@ -70,6 +86,7 @@
             </LinearLayout>
         </RelativeLayout>
 
+        <!-- Tiêu đề -->
         <TextView
             android:id="@+id/txtTitle"
             android:layout_width="match_parent"
@@ -80,6 +97,7 @@
             android:textSize="30sp"
             android:textStyle="bold" />
 
+        <!-- Tags + Ngày tạo -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -96,11 +114,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
+                android:layout_gravity="center_vertical"
                 android:text=""
                 android:textColor="@color/text_secondary_app"
                 android:textSize="13sp" />
         </LinearLayout>
 
+        <!-- Phụ đề -->
         <TextView
             android:id="@+id/txtSubtitle"
             android:layout_width="wrap_content"
@@ -113,21 +133,44 @@
             android:textColor="#7C8DA5"
             android:textSize="12sp" />
 
+        <!-- Ảnh đính kèm (ẩn, xử lý bên trong WebView) -->
         <ImageView
             android:id="@+id/imgNote"
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:layout_marginTop="14dp"
             android:background="@drawable/bg_image_thumb"
-            android:scaleType="centerCrop" />
+            android:scaleType="centerCrop"
+            android:visibility="gone"/>
 
+        <!-- Thanh công cụ nội dung: biểu tượng loa -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp">
+
+            <TextView
+                android:id="@+id/btnTTS"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_alignParentEnd="true"
+                android:background="@drawable/bg_action_chip"
+                android:gravity="center"
+                android:paddingHorizontal="14dp"
+                android:text="🔊 Đọc"
+                android:textColor="@color/text_primary_app"
+                android:textSize="14sp" />
+        </RelativeLayout>
+
+        <!-- Nội dung ghi chú (WebView) -->
         <WebView
             android:id="@+id/webViewContent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
+            android:layout_marginTop="8dp"
             android:background="#00000000" />
 
+        <!-- Nhắc nhở -->
         <TextView
             android:id="@+id/txtReminder"
             android:layout_width="match_parent"
@@ -140,6 +183,7 @@
             android:textSize="15sp"
             android:visibility="gone" />
 
+        <!-- Link (ẩn – xử lý trong WebView) -->
         <TextView
             android:id="@+id/txtLink"
             android:layout_width="match_parent"
@@ -152,6 +196,25 @@
             android:textSize="15sp"
             android:lineSpacingExtra="4dp"
             android:visibility="gone" />
+
+        <!-- Danh sách ghi âm đính kèm -->
+        <TextView
+            android:id="@+id/txtAudioHeader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="🎙 Ghi âm đính kèm"
+            android:textColor="@color/text_primary_app"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:visibility="gone"/>
+
+        <LinearLayout
+            android:id="@+id/layoutAudioList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="8dp"/>
 
     </LinearLayout>
 </ScrollView>

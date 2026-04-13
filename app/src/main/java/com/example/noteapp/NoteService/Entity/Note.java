@@ -45,4 +45,10 @@ public class Note {
 
     @ColumnInfo(name = "deleted_at", defaultValue = "0")
     public long deletedAt;
+
+    @ColumnInfo(name = "is_locked", defaultValue = "0")
+    public int isLocked;
+
+    @ColumnInfo(name = "pin_hash", defaultValue = "")
+    public String pinHash;
 }

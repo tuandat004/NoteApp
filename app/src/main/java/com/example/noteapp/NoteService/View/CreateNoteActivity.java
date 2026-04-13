@@ -11,12 +11,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.speech.RecognitionListener;
+import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
 import android.text.InputType;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -36,6 +38,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.example.noteapp.Data.AppDatabase;
+import com.example.noteapp.MediaService.Entity.AudioRecording;
 import com.example.noteapp.NoteService.Entity.Note;
 import com.example.noteapp.NoteService.Entity.NoteTag;
 import com.example.noteapp.R;
@@ -44,6 +47,7 @@ import com.example.noteapp.ReminderService.Worker.ReminderReceiver;
 import com.example.noteapp.TagService.Entity.Tag;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -53,6 +57,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import jp.wasabeef.richeditor.RichEditor;
@@ -60,23 +65,20 @@ import jp.wasabeef.richeditor.RichEditor;
 public class CreateNoteActivity extends AppCompatActivity {
 
     private Button btnSave, btnAddTag;
-    private TextView txtCancel, tvRemindMe, tvAddImage, tvInsertLink;
-    private TextView btnBold, btnItalic, btnUnderline, btnBullets, btnChecklist, btnTextSize, btnAlign, btnTable,
-            btnHideToolbar;
+    private TextView txtCancel, tvRemindMe, tvAddImage, tvInsertLink, tvRecordAudio, tvVoiceInput;
+    private TextView btnBold, btnItalic, btnUnderline, btnBullets, btnChecklist,
+            btnTextSize, btnAlign, btnTable, btnHideToolbar;
     private EditText edtTitle, edtSubtitle;
     private LinearLayout layoutTagsContainer, layoutFormattingToolbar, layoutLinksContainer;
-    private View colorYellow, colorGreen, colorCyan, colorBlue, colorPurple, colorPink, colorGray, colorBlack,
-            currentColorView;
+    private View colorYellow, colorGreen, colorCyan, colorBlue, colorPurple,
+            colorPink, colorGray, colorBlack;
 
-    // Image preview views
     private RelativeLayout layoutImagePreview;
     private ImageView imgPreview;
     private TextView btnRemoveImage, txtImageName;
 
     private RichEditor editor;
-
     private int currentHeading = 0;
-    private int currentAlign = 0;
 
     private final List<Tag> allTags = new ArrayList<>();
     private final Set<Integer> selectedTagIds = new HashSet<>();
@@ -84,20 +86,36 @@ public class CreateNoteActivity extends AppCompatActivity {
 
     private String selectedReminderTime = null;
     private long selectedReminderMillis = 0;
-
-    // Existing note ID for edit mode
     private int existingNoteId = -1;
-
-    // Selected Note Color
     private String selectedNoteColor = "";
+
+    // ─── Ghi âm ──────────────────────────────────────────────────────────────
+    private MediaRecorder mediaRecorder;
+    private boolean isRecording = false;
+    private String currentRecordingPath = null;
+    private long recordingStartTime = 0;
+
+    // ─── Nhập giọng nói ──────────────────────────────────────────────────────
+    private SpeechRecognizer speechRecognizer;
+    private boolean isListening = false;
+
+    private final ExecutorService executor = Executors.newFixedThreadPool(2);
 
     private ActivityResultLauncher<PickVisualMediaRequest> pickMedia;
 
-    private final ActivityResultLauncher<String> requestPermissionLauncher = registerForActivityResult(
-            new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (!isGranted) {
-                    Toast.makeText(this, "Quyền thông báo bị từ chối, nhắc nhở có thể không tự hoạt động",
+    private final ActivityResultLauncher<String[]> requestPermissionsLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), results -> {
+                Boolean audioGranted = results.getOrDefault(Manifest.permission.RECORD_AUDIO, false);
+                if (!Boolean.TRUE.equals(audioGranted)) {
+                    Toast.makeText(this, "Cần cấp quyền micro để sử dụng tính năng này",
                             Toast.LENGTH_SHORT).show();
+                }
+            });
+
+    private final ActivityResultLauncher<String> requestNotifLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
+                if (!granted) {
+                    Toast.makeText(this, "Quyền thông báo bị từ chối", Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -106,44 +124,44 @@ public class CreateNoteActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_note);
 
-        btnSave = findViewById(R.id.btnSave);
-        txtCancel = findViewById(R.id.txtCancel);
-        edtTitle = findViewById(R.id.edtTitle);
-        edtSubtitle = findViewById(R.id.edtSubtitle);
-        editor = findViewById(R.id.editor);
-        btnAddTag = findViewById(R.id.btnAddTag);
+        btnSave             = findViewById(R.id.btnSave);
+        txtCancel           = findViewById(R.id.txtCancel);
+        edtTitle            = findViewById(R.id.edtTitle);
+        edtSubtitle         = findViewById(R.id.edtSubtitle);
+        editor              = findViewById(R.id.editor);
+        btnAddTag           = findViewById(R.id.btnAddTag);
         layoutTagsContainer = findViewById(R.id.layoutTagsContainer);
-        tvRemindMe = findViewById(R.id.tvRemindMe);
-        tvAddImage = findViewById(R.id.tvAddImage);
-        tvInsertLink = findViewById(R.id.tvInsertLink);
+        tvRemindMe          = findViewById(R.id.tvRemindMe);
+        tvAddImage          = findViewById(R.id.tvAddImage);
+        tvInsertLink        = findViewById(R.id.tvInsertLink);
+        tvRecordAudio       = findViewById(R.id.tvRecordAudio);
+        tvVoiceInput        = findViewById(R.id.tvVoiceInput);
         layoutFormattingToolbar = findViewById(R.id.layoutFormattingToolbar);
-        layoutLinksContainer = findViewById(R.id.layoutLinksContainer);
+        layoutLinksContainer    = findViewById(R.id.layoutLinksContainer);
 
-        // Image preview
         layoutImagePreview = findViewById(R.id.layoutImagePreview);
-        imgPreview = findViewById(R.id.imgPreview);
-        btnRemoveImage = findViewById(R.id.btnRemoveImage);
-        txtImageName = findViewById(R.id.txtImageName);
+        imgPreview         = findViewById(R.id.imgPreview);
+        btnRemoveImage     = findViewById(R.id.btnRemoveImage);
+        txtImageName       = findViewById(R.id.txtImageName);
 
-        // Formatting buttons
-        btnBold = findViewById(R.id.btnBold);
-        btnItalic = findViewById(R.id.btnItalic);
-        btnUnderline = findViewById(R.id.btnUnderline);
-        btnBullets = findViewById(R.id.btnBullets);
-        btnChecklist = findViewById(R.id.btnChecklist);
-        btnTextSize = findViewById(R.id.btnTextSize);
-        btnAlign = findViewById(R.id.btnAlign);
-        btnTable = findViewById(R.id.btnTable);
+        btnBold       = findViewById(R.id.btnBold);
+        btnItalic     = findViewById(R.id.btnItalic);
+        btnUnderline  = findViewById(R.id.btnUnderline);
+        btnBullets    = findViewById(R.id.btnBullets);
+        btnChecklist  = findViewById(R.id.btnChecklist);
+        btnTextSize   = findViewById(R.id.btnTextSize);
+        btnAlign      = findViewById(R.id.btnAlign);
+        btnTable      = findViewById(R.id.btnTable);
         btnHideToolbar = findViewById(R.id.btnHideToolbar);
 
         colorYellow = findViewById(R.id.colorYellow);
-        colorGreen = findViewById(R.id.colorGreen);
-        colorCyan = findViewById(R.id.colorCyan);
-        colorBlue = findViewById(R.id.colorBlue);
+        colorGreen  = findViewById(R.id.colorGreen);
+        colorCyan   = findViewById(R.id.colorCyan);
+        colorBlue   = findViewById(R.id.colorBlue);
         colorPurple = findViewById(R.id.colorPurple);
-        colorPink = findViewById(R.id.colorPink);
-        colorGray = findViewById(R.id.colorGray);
-        colorBlack = findViewById(R.id.colorBlack);
+        colorPink   = findViewById(R.id.colorPink);
+        colorGray   = findViewById(R.id.colorGray);
+        colorBlack  = findViewById(R.id.colorBlack);
 
         SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
         sessionUserId = prefs.getInt("user_id", -1);
@@ -158,15 +176,23 @@ public class CreateNoteActivity extends AppCompatActivity {
         existingNoteId = getIntent().getIntExtra("note_id", -1);
         if (existingNoteId != -1) {
             TextView txtHeaderTitle = findViewById(R.id.txtHeaderTitle);
-            if (txtHeaderTitle != null) {
-                txtHeaderTitle.setText("Chỉnh sửa Ghi chú");
-            }
+            if (txtHeaderTitle != null) txtHeaderTitle.setText("Chỉnh sửa Ghi chú");
             loadExistingNote(existingNoteId);
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopRecordingIfActive();
+        if (speechRecognizer != null) { speechRecognizer.destroy(); speechRecognizer = null; }
+        executor.shutdown();
+    }
+
+    // ─── Load existing note ───────────────────────────────────────────────────
+
     private void loadExistingNote(int noteId) {
-        Executors.newSingleThreadExecutor().execute(() -> {
+        executor.execute(() -> {
             AppDatabase db = AppDatabase.getInstance(getApplicationContext());
             Note note = db.noteDao().getNoteById(noteId);
             List<Tag> tags = db.tagDao().getTagsByNoteId(noteId);
@@ -176,22 +202,17 @@ public class CreateNoteActivity extends AppCompatActivity {
                 runOnUiThread(() -> {
                     edtTitle.setText(note.title);
                     edtSubtitle.setText(note.subtitle);
-
                     String fullContent = note.content != null ? note.content : "";
-
                     if (note.color != null && !note.color.isEmpty()) {
                         selectedNoteColor = note.color;
                         try {
-                            findViewById(android.R.id.content).setBackgroundColor(Color.parseColor(selectedNoteColor));
-                        } catch (Exception ignored) {
-                        }
+                            findViewById(android.R.id.content)
+                                    .setBackgroundColor(Color.parseColor(selectedNoteColor));
+                        } catch (Exception ignored) {}
                     }
-
                     editor.setHtml(fullContent);
-
                     if (tags != null) {
-                        for (Tag t : tags)
-                            selectedTagIds.add(t.tagId);
+                        for (Tag t : tags) selectedTagIds.add(t.tagId);
                         renderTags();
                     }
                     if (rem != null && rem.reminderTime != null) {
@@ -204,112 +225,95 @@ public class CreateNoteActivity extends AppCompatActivity {
     }
 
     // ─── Permissions ─────────────────────────────────────────────────────────
+
     private void askNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this,
-                    Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED) {
+                requestNotifLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
             }
         }
     }
 
+    private boolean checkAndRequestAudioPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestPermissionsLauncher.launch(new String[]{Manifest.permission.RECORD_AUDIO});
+            return false;
+        }
+        return true;
+    }
+
     // ─── Editor setup ─────────────────────────────────────────────────────────
+
     private void setupEditor() {
         editor.setEditorFontSize(18);
         editor.setEditorFontColor(Color.parseColor("#2E2A27"));
         editor.setPadding(14, 14, 14, 14);
         editor.setPlaceholder("Nội dung ghi chú... (Nhấn để nhập, toolbar định dạng sẽ hiện)");
-
-        // Bật tính năng bôi đen / chọn chữ
-        editor.setOnLongClickListener(null);
         editor.setLongClickable(true);
-        editor.postDelayed(() -> {
-            editor.evaluateJavascript(
-                    "document.body.style.userSelect='auto'; document.body.style.webkitUserSelect='auto';", null);
-        }, 500);
+        editor.postDelayed(() ->
+                editor.evaluateJavascript(
+                        "document.body.style.userSelect='auto'; document.body.style.webkitUserSelect='auto';",
+                        null), 500);
     }
 
-    /**
-     * Lắng nghe keyboard show/hide để hiện/ẩn formatting toolbar
-     * Khi keyboard xuất hiện = user đang focus vào editor → hiện toolbar
-     */
     private void setupEditorFocusListener() {
-        // Dùng globalLayoutListener để detect keyboard
         View rootView = getWindow().getDecorView().getRootView();
         rootView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             private boolean wasKeyboardVisible = false;
-
             @Override
             public void onGlobalLayout() {
                 android.graphics.Rect r = new android.graphics.Rect();
                 rootView.getWindowVisibleDisplayFrame(r);
-                int screenHeight = rootView.getRootView().getHeight();
-                int keypadHeight = screenHeight - r.bottom;
-                boolean isKeyboardVisible = keypadHeight > screenHeight * 0.15;
-
-                if (isKeyboardVisible != wasKeyboardVisible) {
-                    wasKeyboardVisible = isKeyboardVisible;
-                    if (isKeyboardVisible) {
-                        layoutFormattingToolbar.setVisibility(View.VISIBLE);
-                    } else {
-                        layoutFormattingToolbar.setVisibility(View.GONE);
-                    }
+                int screenH = rootView.getRootView().getHeight();
+                int keyPadH = screenH - r.bottom;
+                boolean isKeyVisible = keyPadH > screenH * 0.15;
+                if (isKeyVisible != wasKeyboardVisible) {
+                    wasKeyboardVisible = isKeyVisible;
+                    layoutFormattingToolbar.setVisibility(isKeyVisible ? View.VISIBLE : View.GONE);
                 }
             }
         });
-
-        // Nút ẩn toolbar thủ công
         btnHideToolbar.setOnClickListener(v -> {
             layoutFormattingToolbar.setVisibility(View.GONE);
-            // Ẩn keyboard
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            View currentFocus = getCurrentFocus();
-            if (currentFocus != null)
-                imm.hideSoftInputFromWindow(currentFocus.getWindowToken(), 0);
+            View focus = getCurrentFocus();
+            if (focus != null) imm.hideSoftInputFromWindow(focus.getWindowToken(), 0);
         });
     }
 
     // ─── Image picker ─────────────────────────────────────────────────────────
+
     private void setupImagePicker() {
         pickMedia = registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
             if (uri != null) {
                 try {
-                    // Lấy tên file
                     String fileName = getFileNameFromUri(uri);
-
                     InputStream is = getContentResolver().openInputStream(uri);
                     android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeStream(is);
                     is.close();
-
-                    // Convert to base64
                     ByteArrayOutputStream bao = new ByteArrayOutputStream();
                     bitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 85, bao);
-                    byte[] ba = bao.toByteArray();
-                    String base64 = android.util.Base64.encodeToString(ba, android.util.Base64.NO_WRAP);
+                    String base64  = android.util.Base64.encodeToString(bao.toByteArray(), android.util.Base64.NO_WRAP);
                     String dataUrl = "data:image/jpeg;base64," + base64;
-
-                    // Use DOM marker to place image exactly at the cursor
-                    String js = "var marker = document.getElementById('cursor_marker_img');" +
-                            "if(marker) {" +
-                            "  var img = document.createElement('img');" +
-                            "  img.src = '" + dataUrl + "';" +
-                            "  img.alt = '" + fileName + "';" +
-                            "  img.style.maxWidth = '100%';" +
-                            "  marker.parentNode.replaceChild(img, marker);" +
-                            "  if(typeof RE !== 'undefined' && RE.callback) RE.callback();" +
-                            "} else {" +
-                            "  document.execCommand('insertImage', false, '" + dataUrl + "');" +
-                            "}";
+                    String js = "var marker = document.getElementById('cursor_marker_img');"
+                            + "if(marker) {"
+                            + "  var img = document.createElement('img');"
+                            + "  img.src = '" + dataUrl + "';"
+                            + "  img.alt = '" + fileName + "';"
+                            + "  img.style.maxWidth = '100%';"
+                            + "  marker.parentNode.replaceChild(img, marker);"
+                            + "  if(typeof RE !== 'undefined' && RE.callback) RE.callback();"
+                            + "} else {"
+                            + "  document.execCommand('insertImage', false, '" + dataUrl + "');"
+                            + "}";
                     editor.evaluateJavascript(js, null);
-
-                    // Xóa marker nếu còn sót lại ở bất kỳ đâu do bấm nhiều lần
                     editor.evaluateJavascript(
                             "var m; while(m = document.getElementById('cursor_marker_img')) { m.parentNode.removeChild(m); }",
                             null);
-
                     Toast.makeText(this, "Đã chèn ảnh: " + fileName, Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
-                    e.printStackTrace();
                     Toast.makeText(this, "Lỗi khi thêm ảnh!", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -319,40 +323,34 @@ public class CreateNoteActivity extends AppCompatActivity {
     private String getFileNameFromUri(Uri uri) {
         String name = "image.png";
         try {
-            android.database.Cursor cursor = getContentResolver()
-                    .query(uri, null, null, null, null);
+            android.database.Cursor cursor = getContentResolver().query(uri, null, null, null, null);
             if (cursor != null && cursor.moveToFirst()) {
                 int idx = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME);
-                if (idx >= 0)
-                    name = cursor.getString(idx);
+                if (idx >= 0) name = cursor.getString(idx);
                 cursor.close();
             }
-        } catch (Exception ignored) {
-        }
+        } catch (Exception ignored) {}
         return name;
     }
 
     // ─── Click listeners ──────────────────────────────────────────────────────
+
     private void setupClickListeners() {
         btnSave.setOnClickListener(v -> saveNote());
         txtCancel.setOnClickListener(v -> finish());
         btnAddTag.setOnClickListener(v -> showTagsDialog());
 
-        // Image remove button (hidden as we use inline images now)
         btnRemoveImage.setVisibility(View.GONE);
         layoutImagePreview.setVisibility(View.GONE);
 
-        // Add Image
         tvAddImage.setOnClickListener(v -> {
             editor.focusEditor();
             editor.evaluateJavascript(
                     "document.execCommand('insertHTML', false, '<span id=\"cursor_marker_img\"></span>');", null);
             pickMedia.launch(new PickVisualMediaRequest.Builder()
-                    .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
-                    .build());
+                    .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE).build());
         });
 
-        // Insert Link
         tvInsertLink.setOnClickListener(v -> {
             editor.focusEditor();
             editor.evaluateJavascript(
@@ -360,52 +358,40 @@ public class CreateNoteActivity extends AppCompatActivity {
             showInsertLinkDialog();
         });
 
-        // Note Color Toggle
+        // Ghi âm
+        tvRecordAudio.setOnClickListener(v -> toggleRecording());
+
+        // Nhập bằng giọng nói
+        tvVoiceInput.setOnClickListener(v -> toggleVoiceInput());
+
+        // Note Color
         View tvNoteColor = findViewById(R.id.tvNoteColor);
         View layoutColorPicker = findViewById(R.id.layoutColorPicker);
         if (tvNoteColor != null && layoutColorPicker != null) {
-            tvNoteColor.setOnClickListener(v -> {
-                if (layoutColorPicker.getVisibility() == View.VISIBLE) {
-                    layoutColorPicker.setVisibility(View.GONE);
-                } else {
-                    layoutColorPicker.setVisibility(View.VISIBLE);
-                }
-            });
+            tvNoteColor.setOnClickListener(v ->
+                    layoutColorPicker.setVisibility(
+                            layoutColorPicker.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE));
         }
 
-        // Remind me
         tvRemindMe.setOnClickListener(v -> showDateTimePicker());
 
-        // Formatting Toolbar State Synchronization
         editor.setOnDecorationChangeListener((text, types) -> {
-            boolean isBold = types.contains(RichEditor.Type.BOLD);
-            boolean isItalic = types.contains(RichEditor.Type.ITALIC);
+            boolean isBold      = types.contains(RichEditor.Type.BOLD);
+            boolean isItalic    = types.contains(RichEditor.Type.ITALIC);
             boolean isUnderline = types.contains(RichEditor.Type.UNDERLINE);
-
             btnBold.setTextColor(isBold ? Color.BLACK : 0xFF5F5650);
             btnBold.setBackgroundColor(isBold ? 0xFFE0E0E0 : Color.TRANSPARENT);
-
             btnItalic.setTextColor(isItalic ? Color.BLACK : 0xFF5F5650);
             btnItalic.setBackgroundColor(isItalic ? 0xFFE0E0E0 : Color.TRANSPARENT);
-
             btnUnderline.setTextColor(isUnderline ? Color.BLACK : 0xFF5F5650);
             btnUnderline.setBackgroundColor(isUnderline ? 0xFFE0E0E0 : Color.TRANSPARENT);
         });
 
-        // Mỗi nút format chỉ cần gọi thẳng action — editor đã được focus sẵn khi
-        // toolbar hiện
         btnBold.setOnClickListener(v -> editor.setBold());
         btnItalic.setOnClickListener(v -> editor.setItalic());
         btnUnderline.setOnClickListener(v -> editor.setUnderline());
-
-        btnBullets.setOnClickListener(v -> {
-            editor.setBullets();
-            Toast.makeText(this, "Danh sách chấm", Toast.LENGTH_SHORT).show();
-        });
-        btnChecklist.setOnClickListener(v -> {
-            editor.setNumbers();
-            Toast.makeText(this, "Danh sách số", Toast.LENGTH_SHORT).show();
-        });
+        btnBullets.setOnClickListener(v -> editor.setBullets());
+        btnChecklist.setOnClickListener(v -> editor.setNumbers());
 
         btnTextSize.setOnClickListener(v -> {
             currentHeading = (currentHeading + 1) % 6;
@@ -413,313 +399,391 @@ public class CreateNoteActivity extends AppCompatActivity {
             Toast.makeText(this, "Cỡ chữ H" + (currentHeading + 1), Toast.LENGTH_SHORT).show();
         });
 
-        btnAlign.setOnClickListener(v -> {
-            String[] alignments = { "Căn trái", "Căn giữa", "Căn phải" };
-            new AlertDialog.Builder(this)
-                    .setTitle("Chọn căn lề")
-                    .setItems(alignments, (dialog, which) -> {
-                        if (which == 0) {
-                            editor.setAlignLeft();
-                            Toast.makeText(this, "Đã căn trái", Toast.LENGTH_SHORT).show();
-                        } else if (which == 1) {
-                            editor.setAlignCenter();
-                            Toast.makeText(this, "Đã căn giữa", Toast.LENGTH_SHORT).show();
-                        } else if (which == 2) {
-                            editor.setAlignRight();
-                            Toast.makeText(this, "Đã căn phải", Toast.LENGTH_SHORT).show();
-                        }
-                    })
-                    .show();
-        });
+        btnAlign.setOnClickListener(v ->
+                new AlertDialog.Builder(this)
+                        .setTitle("Chọn căn lề")
+                        .setItems(new String[]{"Căn trái", "Căn giữa", "Căn phải"}, (d, w) -> {
+                            if (w == 0) editor.setAlignLeft();
+                            else if (w == 1) editor.setAlignCenter();
+                            else editor.setAlignRight();
+                        }).show());
 
-        btnTable.setOnClickListener(v -> {
-            String[] options = { "Tạo bảng mới", "Xóa dòng hiện tại", "Xóa cột hiện tại", "Xóa toàn bộ bảng" };
-            new AlertDialog.Builder(this)
-                    .setTitle("Quản lý Bảng")
-                    .setItems(options, (dialogInterface, index) -> {
-                        if (index == 0) {
-                            showCreateTableDialog();
-                        } else if (index == 1) {
-                            editor.evaluateJavascript(
-                                    "(function(){" +
-                                            "  var sel = window.getSelection();" +
-                                            "  if(!sel || sel.rangeCount === 0) return;" +
-                                            "  var node = sel.getRangeAt(0).startContainer;" +
-                                            "  while(node && node.nodeName !== 'TR') node = node.parentNode;" +
-                                            "  if(node && node.nodeName === 'TR') node.parentNode.removeChild(node);" +
-                                            "  if(typeof window.RE !== 'undefined' && window.RE.callback) window.RE.callback();"
-                                            +
-                                            "})()",
-                                    val -> runOnUiThread(
-                                            () -> Toast.makeText(this, "Đã xóa dòng", Toast.LENGTH_SHORT).show()));
-                        } else if (index == 2) {
-                            editor.evaluateJavascript(
-                                    "(function(){" +
-                                            "  var sel = window.getSelection();" +
-                                            "  if(!sel || sel.rangeCount === 0) return;" +
-                                            "  var node = sel.getRangeAt(0).startContainer;" +
-                                            "  while(node && node.nodeName !== 'TD' && node.nodeName !== 'TH') node = node.parentNode;"
-                                            +
-                                            "  if(node && (node.nodeName === 'TD' || node.nodeName === 'TH')) {" +
-                                            "    var cellIndex = node.cellIndex;" +
-                                            "    var table = node;" +
-                                            "    while(table && table.nodeName !== 'TABLE') table = table.parentNode;" +
-                                            "    if(table && table.nodeName === 'TABLE') {" +
-                                            "      for(var i=0; i<table.rows.length; i++) {" +
-                                            "        if(table.rows[i].cells.length > cellIndex) {" +
-                                            "          table.rows[i].deleteCell(cellIndex);" +
-                                            "        }" +
-                                            "      }" +
-                                            "    }" +
-                                            "  }" +
-                                            "  if(typeof window.RE !== 'undefined' && window.RE.callback) window.RE.callback();"
-                                            +
-                                            "})()",
-                                    val -> runOnUiThread(
-                                            () -> Toast.makeText(this, "Đã xóa cột", Toast.LENGTH_SHORT).show()));
-                        } else if (index == 3) {
-                            editor.evaluateJavascript(
-                                    "(function(){" +
-                                            "  var sel = window.getSelection();" +
-                                            "  var node = sel && sel.rangeCount > 0 ? sel.getRangeAt(0).commonAncestorContainer : null;"
-                                            +
-                                            "  if (node && node.nodeType === 3) node = node.parentNode;" +
-                                            "  while(node && node.tagName !== 'TABLE') node = node.parentNode;" +
-                                            "  if(!node || node.tagName !== 'TABLE') {" +
-                                            "    var tables = document.querySelectorAll('table');" +
-                                            "    if(tables.length > 0) node = tables[tables.length - 1];" +
-                                            "  }" +
-                                            "  if(node && node.tagName === 'TABLE') node.parentNode.removeChild(node);"
-                                            +
-                                            "  if(typeof window.RE !== 'undefined' && window.RE.callback) window.RE.callback();"
-                                            +
-                                            "})()",
-                                    val -> runOnUiThread(
-                                            () -> Toast.makeText(this, "Đã xóa bảng", Toast.LENGTH_SHORT).show()));
-                        }
-                    })
-                    .show();
-        });
+        btnTable.setOnClickListener(v ->
+                new AlertDialog.Builder(this)
+                        .setTitle("Quản lý Bảng")
+                        .setItems(new String[]{"Tạo bảng mới", "Xóa dòng", "Xóa cột", "Xóa bảng"}, (d, w) -> {
+                            if (w == 0) showCreateTableDialog();
+                            else if (w == 1) runTableJs("row");
+                            else if (w == 2) runTableJs("col");
+                            else runTableJs("table");
+                        }).show());
 
-        // Color buttons
         View.OnClickListener colorClick = v -> {
             String hex = (String) v.getTag();
             selectedNoteColor = hex;
-            try {
-                findViewById(android.R.id.content).setBackgroundColor(Color.parseColor(hex));
-            } catch (Exception ignored) {
-            }
+            try { findViewById(android.R.id.content).setBackgroundColor(Color.parseColor(hex)); }
+            catch (Exception ignored) {}
         };
-
-        colorYellow.setTag("#F3D986");
-        colorYellow.setOnClickListener(colorClick);
-        colorGreen.setTag("#DDE0A8");
-        colorGreen.setOnClickListener(colorClick);
-        colorCyan.setTag("#B7D6C6");
-        colorCyan.setOnClickListener(colorClick);
-        colorBlue.setTag("#B5C7DE");
-        colorBlue.setOnClickListener(colorClick);
-        colorPurple.setTag("#D5C9E3");
-        colorPurple.setOnClickListener(colorClick);
-        colorPink.setTag("#EDC9CF");
-        colorPink.setOnClickListener(colorClick);
-        colorGray.setTag("#D9D5D2");
-        colorGray.setOnClickListener(colorClick);
-        colorBlack.setTag("#2E2A27");
-        colorBlack.setOnClickListener(colorClick);
+        colorYellow.setTag("#F3D986"); colorYellow.setOnClickListener(colorClick);
+        colorGreen.setTag("#DDE0A8");  colorGreen.setOnClickListener(colorClick);
+        colorCyan.setTag("#B7D6C6");   colorCyan.setOnClickListener(colorClick);
+        colorBlue.setTag("#B5C7DE");   colorBlue.setOnClickListener(colorClick);
+        colorPurple.setTag("#D5C9E3"); colorPurple.setOnClickListener(colorClick);
+        colorPink.setTag("#EDC9CF");   colorPink.setOnClickListener(colorClick);
+        colorGray.setTag("#D9D5D2");   colorGray.setOnClickListener(colorClick);
+        colorBlack.setTag("#2E2A27");  colorBlack.setOnClickListener(colorClick);
     }
 
-    // ─── Insert Link Dialog ────────────────────────────────────────────────────
+    private void runTableJs(String action) {
+        String js;
+        if (action.equals("row")) {
+            js = "(function(){var sel=window.getSelection();if(!sel||sel.rangeCount===0)return;"
+               + "var node=sel.getRangeAt(0).startContainer;"
+               + "while(node&&node.nodeName!=='TR')node=node.parentNode;"
+               + "if(node&&node.nodeName==='TR')node.parentNode.removeChild(node);"
+               + "if(typeof window.RE!=='undefined'&&window.RE.callback)window.RE.callback();})()";
+        } else if (action.equals("col")) {
+            js = "(function(){var sel=window.getSelection();if(!sel||sel.rangeCount===0)return;"
+               + "var node=sel.getRangeAt(0).startContainer;"
+               + "while(node&&node.nodeName!=='TD'&&node.nodeName!=='TH')node=node.parentNode;"
+               + "if(node){var ci=node.cellIndex,t=node;while(t&&t.nodeName!=='TABLE')t=t.parentNode;"
+               + "if(t)for(var i=0;i<t.rows.length;i++)if(t.rows[i].cells.length>ci)t.rows[i].deleteCell(ci);}"
+               + "if(typeof window.RE!=='undefined'&&window.RE.callback)window.RE.callback();})()";
+        } else {
+            js = "(function(){var sel=window.getSelection();"
+               + "var node=sel&&sel.rangeCount>0?sel.getRangeAt(0).commonAncestorContainer:null;"
+               + "if(node&&node.nodeType===3)node=node.parentNode;"
+               + "while(node&&node.tagName!=='TABLE')node=node.parentNode;"
+               + "if(!node){var t=document.querySelectorAll('table');if(t.length>0)node=t[t.length-1];}"
+               + "if(node&&node.tagName==='TABLE')node.parentNode.removeChild(node);"
+               + "if(typeof window.RE!=='undefined'&&window.RE.callback)window.RE.callback();})()";
+        }
+        editor.evaluateJavascript(js, null);
+    }
+
+    // ─── Ghi âm ──────────────────────────────────────────────────────────────
+
+    private void toggleRecording() {
+        if (!checkAndRequestAudioPermission()) return;
+        if (isRecording) {
+            stopRecording();
+        } else {
+            startRecording();
+        }
+    }
+
+    private void startRecording() {
+        try {
+            File dir = getFilesDir();
+            String fileName = "rec_" + System.currentTimeMillis() + ".m4a";
+            currentRecordingPath = new File(dir, fileName).getAbsolutePath();
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                mediaRecorder = new MediaRecorder(this);
+            } else {
+                mediaRecorder = new MediaRecorder();
+            }
+            mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+            mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+            mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+            mediaRecorder.setAudioEncodingBitRate(128000);
+            mediaRecorder.setAudioSamplingRate(44100);
+            mediaRecorder.setOutputFile(currentRecordingPath);
+            mediaRecorder.prepare();
+            mediaRecorder.start();
+
+            isRecording = true;
+            recordingStartTime = System.currentTimeMillis();
+            tvRecordAudio.setText("⏹ Dừng ghi âm");
+            tvRecordAudio.setTextColor(Color.parseColor("#D32F2F"));
+            Toast.makeText(this, "Đang ghi âm...", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Toast.makeText(this, "Lỗi ghi âm: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            mediaRecorder = null;
+            isRecording = false;
+        }
+    }
+
+    private void stopRecording() {
+        if (mediaRecorder == null) return;
+        try {
+            mediaRecorder.stop();
+        } catch (Exception ignored) {}
+        mediaRecorder.release();
+        mediaRecorder = null;
+
+        long duration = System.currentTimeMillis() - recordingStartTime;
+        isRecording = false;
+        tvRecordAudio.setText("🎙 Ghi âm");
+        tvRecordAudio.setTextColor(Color.parseColor("#7B726B"));
+
+        if (duration < 1000) {
+            // Quá ngắn → xóa file
+            if (currentRecordingPath != null) new File(currentRecordingPath).delete();
+            Toast.makeText(this, "Ghi âm quá ngắn, hãy thử lại", Toast.LENGTH_SHORT).show();
+            currentRecordingPath = null;
+            return;
+        }
+
+        // Lưu tạm đường dẫn để save cùng note
+        final String path = currentRecordingPath;
+        final long dur = duration;
+        currentRecordingPath = null;
+
+        // Nếu đang edit note hiện tại → lưu ngay vào DB
+        if (existingNoteId != -1) {
+            saveRecordingToDb(existingNoteId, path, dur);
+        } else {
+            // Ghi chú mới chưa lưu → giữ tạm trong memory, sẽ lưu khi save note
+            pendingRecordingPath = path;
+            pendingRecordingDuration = dur;
+        }
+
+        Toast.makeText(this, "✅ Đã ghi âm xong (" + (dur / 1000) + "s)", Toast.LENGTH_SHORT).show();
+    }
+
+    private void stopRecordingIfActive() {
+        if (isRecording && mediaRecorder != null) {
+            try { mediaRecorder.stop(); } catch (Exception ignored) {}
+            mediaRecorder.release();
+            mediaRecorder = null;
+            isRecording = false;
+        }
+    }
+
+    // Lưu tạm ghi âm chờ ghi chú được tạo xong
+    private String pendingRecordingPath = null;
+    private long pendingRecordingDuration = 0;
+
+    private void saveRecordingToDb(int noteId, String filePath, long durationMs) {
+        executor.execute(() -> {
+            AudioRecording rec = new AudioRecording();
+            rec.noteId = noteId;
+            rec.filePath = filePath;
+            rec.durationMs = durationMs;
+            rec.createdAt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+                    .format(new Date());
+            AppDatabase.getInstance(getApplicationContext()).audioRecordingDao().insert(rec);
+        });
+    }
+
+    // ─── Nhập bằng giọng nói ─────────────────────────────────────────────────
+
+    private void toggleVoiceInput() {
+        if (!checkAndRequestAudioPermission()) return;
+        if (isListening) {
+            stopVoiceInput();
+        } else {
+            startVoiceInput();
+        }
+    }
+
+    private void startVoiceInput() {
+        if (!SpeechRecognizer.isRecognitionAvailable(this)) {
+            Toast.makeText(this, "Thiết bị không hỗ trợ nhận dạng giọng nói", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (speechRecognizer != null) { speechRecognizer.destroy(); }
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
+        speechRecognizer.setRecognitionListener(new RecognitionListener() {
+            @Override public void onReadyForSpeech(Bundle params) {
+                isListening = true;
+                tvVoiceInput.setText("🔴 Đang nghe...");
+                tvVoiceInput.setTextColor(Color.parseColor("#D32F2F"));
+            }
+            @Override public void onResults(Bundle results) {
+                List<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+                if (matches != null && !matches.isEmpty()) {
+                    String text = matches.get(0);
+                    // Chèn text vào vị trí con trỏ trong editor
+                    String escaped = text.replace("'", "\\'");
+                    editor.evaluateJavascript(
+                            "document.execCommand('insertText', false, '" + escaped + "');", null);
+                    Toast.makeText(CreateNoteActivity.this,
+                            "Đã nhận: " + text, Toast.LENGTH_SHORT).show();
+                }
+                resetVoiceButton();
+            }
+            @Override public void onError(int error) {
+                String msg = getVoiceErrorMsg(error);
+                Toast.makeText(CreateNoteActivity.this, "Lỗi: " + msg, Toast.LENGTH_SHORT).show();
+                resetVoiceButton();
+            }
+            @Override public void onEndOfSpeech() { resetVoiceButton(); }
+            @Override public void onBeginningOfSpeech() {}
+            @Override public void onRmsChanged(float v) {}
+            @Override public void onBufferReceived(byte[] b) {}
+            @Override public void onPartialResults(Bundle b) {}
+            @Override public void onEvent(int i, Bundle b) {}
+        });
+
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "vi-VN");
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "vi-VN");
+        intent.putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, false);
+        intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
+        intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 2000);
+        speechRecognizer.startListening(intent);
+    }
+
+    private void stopVoiceInput() {
+        if (speechRecognizer != null) speechRecognizer.stopListening();
+        resetVoiceButton();
+    }
+
+    private void resetVoiceButton() {
+        isListening = false;
+        tvVoiceInput.setText("🎤 Nhập giọng");
+        tvVoiceInput.setTextColor(Color.parseColor("#7B726B"));
+    }
+
+    private String getVoiceErrorMsg(int error) {
+        switch (error) {
+            case SpeechRecognizer.ERROR_AUDIO:              return "Lỗi audio";
+            case SpeechRecognizer.ERROR_CLIENT:             return "Lỗi client";
+            case SpeechRecognizer.ERROR_NETWORK:            return "Lỗi mạng";
+            case SpeechRecognizer.ERROR_NO_MATCH:           return "Không nhận diện được";
+            case SpeechRecognizer.ERROR_SPEECH_TIMEOUT:     return "Hết thời gian";
+            case SpeechRecognizer.ERROR_RECOGNIZER_BUSY:    return "Đang bận";
+            default: return "Lỗi không xác định (" + error + ")";
+        }
+    }
+
+    // ─── Insert Link Dialog ───────────────────────────────────────────────────
+
     private void showInsertLinkDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Chèn đường Link");
-
         final EditText input = new EditText(this);
         input.setHint("https://...");
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI);
-        int padding = (int) (16 * getResources().getDisplayMetrics().density);
-        input.setPadding(padding, padding / 2, padding, padding / 2);
+        int p = (int) (16 * getResources().getDisplayMetrics().density);
+        input.setPadding(p, p / 2, p, p / 2);
         builder.setView(input);
-
         builder.setPositiveButton("Thêm", (dialog, which) -> {
             String url = input.getText().toString().trim();
             if (!url.isEmpty()) {
-                if (!url.startsWith("http"))
-                    url = "https://" + url;
+                if (!url.startsWith("http")) url = "https://" + url;
                 final String finalUrl = url;
-                String js = "var marker = document.getElementById('cursor_marker_link');" +
-                        "if(marker) {" +
-                        "  var a = document.createElement('a');" +
-                        "  a.href = '" + finalUrl + "';" +
-                        "  a.innerText = '" + finalUrl + "';" +
-                        "  marker.parentNode.replaceChild(a, marker);" +
-                        "  if(typeof RE !== 'undefined' && RE.callback) RE.callback();" +
-                        "} else {" +
-                        "  document.execCommand('createLink', false, '" + finalUrl + "');" +
-                        "}";
+                String js = "var marker = document.getElementById('cursor_marker_link');"
+                        + "if(marker) {"
+                        + "  var a = document.createElement('a');"
+                        + "  a.href = '" + finalUrl + "';"
+                        + "  a.innerText = '" + finalUrl + "';"
+                        + "  marker.parentNode.replaceChild(a, marker);"
+                        + "  if(typeof RE !== 'undefined' && RE.callback) RE.callback();"
+                        + "} else {"
+                        + "  document.execCommand('createLink', false, '" + finalUrl + "');"
+                        + "}";
                 editor.evaluateJavascript(js, null);
                 editor.evaluateJavascript(
                         "var m; while(m = document.getElementById('cursor_marker_link')) { m.parentNode.removeChild(m); }",
                         null);
-                Toast.makeText(this, "Đã chèn link", Toast.LENGTH_SHORT).show();
             }
         });
         builder.setNegativeButton("Hủy", null);
         builder.show();
     }
 
-    // ─── Tags Dialog ──────────────────────────────────────────────────────────
+    // ─── Tags ─────────────────────────────────────────────────────────────────
+
     private void showTagsDialog() {
         if (allTags.isEmpty()) {
             Toast.makeText(this, "Chưa có tag nào!", Toast.LENGTH_SHORT).show();
             return;
         }
-
-        String[] tagNames = new String[allTags.size()];
-        boolean[] checkedItems = new boolean[allTags.size()];
+        String[] names = new String[allTags.size()];
+        boolean[] checked = new boolean[allTags.size()];
         for (int i = 0; i < allTags.size(); i++) {
-            tagNames[i] = allTags.get(i).tagName;
-            checkedItems[i] = selectedTagIds.contains(allTags.get(i).tagId);
+            names[i]   = allTags.get(i).tagName;
+            checked[i] = selectedTagIds.contains(allTags.get(i).tagId);
         }
-
         new AlertDialog.Builder(this)
                 .setTitle("Chọn Tags")
-                .setMultiChoiceItems(tagNames, checkedItems, (dialog, which, isChecked) -> {
-                    if (isChecked)
-                        selectedTagIds.add(allTags.get(which).tagId);
-                    else
-                        selectedTagIds.remove(allTags.get(which).tagId);
+                .setMultiChoiceItems(names, checked, (d, w, c) -> {
+                    if (c) selectedTagIds.add(allTags.get(w).tagId);
+                    else selectedTagIds.remove(allTags.get(w).tagId);
                 })
-                .setPositiveButton("Xong", (dialog, which) -> renderTags())
-                .setNeutralButton("Tạo Tag mới", (dialog, which) -> showCreateTagDialog())
+                .setPositiveButton("Xong", (d, w) -> renderTags())
+                .setNeutralButton("Tạo Tag mới", (d, w) -> showCreateTagDialog())
                 .show();
     }
 
     private void showCreateTagDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Tạo Tag mới");
+        AlertDialog.Builder b = new AlertDialog.Builder(this);
+        b.setTitle("Tạo Tag mới");
         final EditText input = new EditText(this);
         input.setHint("Nhập tên tag");
-        builder.setView(input);
-
-        builder.setPositiveButton("Tạo", (dialog, which) -> {
+        b.setView(input);
+        b.setPositiveButton("Tạo", (d, w) -> {
             String tagName = input.getText().toString().trim();
             if (!tagName.isEmpty()) {
-                Executors.newSingleThreadExecutor().execute(() -> {
-                    Tag newTag = new Tag();
-                    newTag.userId = sessionUserId;
-                    newTag.tagName = tagName;
-                    long newId = AppDatabase.getInstance(getApplicationContext()).tagDao().insertTag(newTag);
-                    selectedTagIds.add((int) newId);
-                    runOnUiThread(() -> {
-                        Toast.makeText(this, "Đã tạo tag mới!", Toast.LENGTH_SHORT).show();
-                        loadTags();
-                    });
+                executor.execute(() -> {
+                    Tag t = new Tag();
+                    t.userId = sessionUserId;
+                    t.tagName = tagName;
+                    long id = AppDatabase.getInstance(getApplicationContext()).tagDao().insertTag(t);
+                    selectedTagIds.add((int) id);
+                    runOnUiThread(() -> { Toast.makeText(this, "Đã tạo tag!", Toast.LENGTH_SHORT).show(); loadTags(); });
                 });
             }
         });
-        builder.show();
+        b.show();
     }
 
     private void showCreateTableDialog() {
-        LinearLayout dialogLayout = new LinearLayout(this);
-        dialogLayout.setOrientation(LinearLayout.VERTICAL);
-        dialogLayout.setPadding(40, 20, 40, 20);
-
-        TextView tvRowLabel = new TextView(this);
-        tvRowLabel.setText("Số dòng:");
-        tvRowLabel.setPadding(0, 8, 0, 4);
-        dialogLayout.addView(tvRowLabel);
-
-        EditText edtRows = new EditText(this);
-        edtRows.setHint("VD: 3");
-        edtRows.setInputType(InputType.TYPE_CLASS_NUMBER);
-        dialogLayout.addView(edtRows);
-
-        TextView tvColLabel = new TextView(this);
-        tvColLabel.setText("Số cột:");
-        tvColLabel.setPadding(0, 12, 0, 4);
-        dialogLayout.addView(tvColLabel);
-
-        EditText edtCols = new EditText(this);
-        edtCols.setHint("VD: 3");
-        edtCols.setInputType(InputType.TYPE_CLASS_NUMBER);
-        dialogLayout.addView(edtCols);
-
-        new AlertDialog.Builder(this)
-                .setTitle("Tạo bảng")
-                .setView(dialogLayout)
-                .setPositiveButton("Tạo", (dialog, which) -> {
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setPadding(40, 20, 40, 20);
+        TextView tvR = new TextView(this); tvR.setText("Số dòng:"); layout.addView(tvR);
+        EditText edtR = new EditText(this); edtR.setHint("VD: 3"); edtR.setInputType(InputType.TYPE_CLASS_NUMBER); layout.addView(edtR);
+        TextView tvC = new TextView(this); tvC.setText("Số cột:"); layout.addView(tvC);
+        EditText edtC = new EditText(this); edtC.setHint("VD: 3"); edtC.setInputType(InputType.TYPE_CLASS_NUMBER); layout.addView(edtC);
+        new AlertDialog.Builder(this).setTitle("Tạo bảng").setView(layout)
+                .setPositiveButton("Tạo", (d, w) -> {
                     int rows = 2, cols = 2;
-                    try {
-                        String rStr = edtRows.getText().toString().trim();
-                        if (!rStr.isEmpty())
-                            rows = Integer.parseInt(rStr);
-                    } catch (Exception ignored) {
-                    }
-                    try {
-                        String cStr = edtCols.getText().toString().trim();
-                        if (!cStr.isEmpty())
-                            cols = Integer.parseInt(cStr);
-                    } catch (Exception ignored) {
-                    }
-                    if (rows < 1)
-                        rows = 1;
-                    if (cols < 1)
-                        cols = 1;
-
-                    StringBuilder tableHtml = new StringBuilder();
-                    tableHtml.append(
-                            "<table style='width:100%;border-collapse:collapse;margin:10px 0;border:1px solid #666666;'>");
+                    try { rows = Integer.parseInt(edtR.getText().toString().trim()); } catch (Exception ignored) {}
+                    try { cols = Integer.parseInt(edtC.getText().toString().trim()); } catch (Exception ignored) {}
+                    if (rows < 1) rows = 1; if (cols < 1) cols = 1;
+                    StringBuilder html = new StringBuilder("<table style='width:100%;border-collapse:collapse;margin:10px 0;border:1px solid #666666;'>");
                     for (int r = 0; r < rows; r++) {
-                        tableHtml.append("<tr>");
-                        for (int c = 0; c < cols; c++) {
-                            tableHtml.append(
-                                    "<td style='border:1px solid #666666;padding:8px;min-width:40px;'>&nbsp;</td>");
-                        }
-                        tableHtml.append("</tr>");
+                        html.append("<tr>");
+                        for (int c = 0; c < cols; c++) html.append("<td style='border:1px solid #666666;padding:8px;min-width:40px;'>&nbsp;</td>");
+                        html.append("</tr>");
                     }
-                    tableHtml.append("</table><br>");
-
-                    String escaped = tableHtml.toString().replace("'", "\\'");
-                    int finalRows = rows, finalCols = cols;
-                    editor.evaluateJavascript(
-                            "(function(){" +
-                                    "  var html = '" + escaped + "';" +
-                                    "  document.execCommand('insertHTML', false, html);" +
-                                    "})()",
-                            value -> runOnUiThread(() -> Toast
-                                    .makeText(this, "Đã chèn bảng " + finalRows + "x" + finalCols, Toast.LENGTH_SHORT)
-                                    .show()));
+                    html.append("</table><br>");
+                    String escaped = html.toString().replace("'", "\\'");
+                    int fr = rows, fc = cols;
+                    editor.evaluateJavascript("(function(){document.execCommand('insertHTML',false,'" + escaped + "');})()",
+                            v -> runOnUiThread(() -> Toast.makeText(this, "Đã chèn bảng " + fr + "x" + fc, Toast.LENGTH_SHORT).show()));
                 })
-                .setNegativeButton("Hủy", null)
-                .show();
+                .setNegativeButton("Hủy", null).show();
     }
 
-    // ─── Date/Time Picker ─────────────────────────────────────────────────────
+    // ─── Date/Time picker ─────────────────────────────────────────────────────
+
     private void showDateTimePicker() {
         final Calendar c = Calendar.getInstance();
         new DatePickerDialog(this,
-                (view, year, month, day) -> new TimePickerDialog(this,
-                        (v2, hour, minute) -> {
-                            Calendar cal = Calendar.getInstance();
-                            cal.set(year, month, day, hour, minute, 0);
-                            if (cal.getTimeInMillis() < System.currentTimeMillis()) {
-                                Toast.makeText(this, "Vui lòng chọn thời gian trong tương lai!", Toast.LENGTH_SHORT)
-                                        .show();
-                                return;
-                            }
-                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
-                            selectedReminderTime = sdf.format(cal.getTime());
-                            selectedReminderMillis = cal.getTimeInMillis();
-                            tvRemindMe.setText("⏰ " + selectedReminderTime);
-                            tvRemindMe.setTextColor(Color.parseColor("#D3C08D"));
-                        },
-                        c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), true).show(),
+                (view, y, m, d) -> new TimePickerDialog(this, (v2, h, min) -> {
+                    Calendar cal = Calendar.getInstance();
+                    cal.set(y, m, d, h, min, 0);
+                    if (cal.getTimeInMillis() < System.currentTimeMillis()) {
+                        Toast.makeText(this, "Chọn thời gian trong tương lai!", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    selectedReminderTime   = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(cal.getTime());
+                    selectedReminderMillis = cal.getTimeInMillis();
+                    tvRemindMe.setText("⏰ " + selectedReminderTime);
+                    tvRemindMe.setTextColor(Color.parseColor("#D3C08D"));
+                }, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), true).show(),
                 c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
     }
 
     // ─── Load Tags ────────────────────────────────────────────────────────────
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -727,14 +791,10 @@ public class CreateNoteActivity extends AppCompatActivity {
     }
 
     private void loadTags() {
-        Executors.newSingleThreadExecutor().execute(() -> {
+        executor.execute(() -> {
             List<Tag> tags = AppDatabase.getInstance(getApplicationContext())
                     .tagDao().getAllTags(sessionUserId);
-            runOnUiThread(() -> {
-                allTags.clear();
-                allTags.addAll(tags);
-                renderTags();
-            });
+            runOnUiThread(() -> { allTags.clear(); allTags.addAll(tags); renderTags(); });
         });
     }
 
@@ -748,8 +808,7 @@ public class CreateNoteActivity extends AppCompatActivity {
             return;
         }
         for (Tag tag : allTags) {
-            if (!selectedTagIds.contains(tag.tagId))
-                continue;
+            if (!selectedTagIds.contains(tag.tagId)) continue;
             TextView chip = new TextView(this);
             chip.setText(tag.tagName);
             chip.setTextSize(14f);
@@ -760,18 +819,16 @@ public class CreateNoteActivity extends AppCompatActivity {
                     LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
             p.setMarginEnd(16);
             chip.setLayoutParams(p);
-            chip.setOnClickListener(v -> {
-                selectedTagIds.remove(tag.tagId);
-                renderTags();
-            });
+            chip.setOnClickListener(v -> { selectedTagIds.remove(tag.tagId); renderTags(); });
             layoutTagsContainer.addView(chip);
         }
     }
 
     // ─── Save Note ────────────────────────────────────────────────────────────
+
     private void saveNote() {
-        String title = edtTitle.getText().toString().trim();
-        String subtitle = edtSubtitle.getText().toString().trim();
+        String title       = edtTitle.getText().toString().trim();
+        String subtitle    = edtSubtitle.getText().toString().trim();
         String contentHtml = editor.getHtml() != null ? editor.getHtml().trim() : "";
 
         if (title.isEmpty() && subtitle.isEmpty() && contentHtml.isEmpty()) {
@@ -779,19 +836,21 @@ public class CreateNoteActivity extends AppCompatActivity {
             return;
         }
 
+        // Dừng ghi âm nếu đang ghi
+        if (isRecording) stopRecording();
+
         Note note = new Note();
-        note.userId = sessionUserId;
-        note.title = title;
-        note.subtitle = subtitle;
-        note.content = contentHtml;
-        note.color = selectedNoteColor.isEmpty() ? "#FFFFFF" : selectedNoteColor;
+        note.userId    = sessionUserId;
+        note.title     = title;
+        note.subtitle  = subtitle;
+        note.content   = contentHtml;
+        note.color     = selectedNoteColor.isEmpty() ? "#FFFFFF" : selectedNoteColor;
         note.createdAt = getCurrentTime();
         note.updatedAt = getCurrentTime();
-        note.isPinned = 0;
+        note.isPinned  = 0;
         note.isDeleted = 0;
 
-        final String finalContent = contentHtml;
-        Executors.newSingleThreadExecutor().execute(() -> {
+        executor.execute(() -> {
             AppDatabase db = AppDatabase.getInstance(getApplicationContext());
             int noteId;
 
@@ -801,27 +860,33 @@ public class CreateNoteActivity extends AppCompatActivity {
                 db.noteDao().update(note);
                 db.tagDao().deleteTagsOfNote(noteId);
             } else {
-                long insertedId = db.noteDao().insert(note);
-                noteId = (int) insertedId;
+                noteId = (int) db.noteDao().insert(note);
             }
 
             for (Integer tagId : selectedTagIds) {
                 NoteTag nt = new NoteTag();
                 nt.noteId = noteId;
-                nt.tagId = tagId;
+                nt.tagId  = tagId;
                 db.tagDao().insertNoteTag(nt);
             }
 
             if (selectedReminderTime != null && selectedReminderMillis > System.currentTimeMillis()) {
-                Reminder reminder = new Reminder();
-                reminder.noteId = noteId;
-                reminder.userId = sessionUserId;
-                reminder.title = title.isEmpty() ? "Ghi chú không tên" : title;
-                reminder.reminderTime = selectedReminderTime;
-                reminder.isDone = 0;
-                reminder.createdAt = getCurrentTime();
-                db.reminderDao().insert(reminder);
-                scheduleExactAlarm(noteId, reminder.title, selectedReminderMillis);
+                Reminder rem = new Reminder();
+                rem.noteId    = noteId;
+                rem.userId    = sessionUserId;
+                rem.title     = title.isEmpty() ? "Ghi chú không tên" : title;
+                rem.reminderTime = selectedReminderTime;
+                rem.isDone    = 0;
+                rem.createdAt = getCurrentTime();
+                db.reminderDao().insert(rem);
+                scheduleExactAlarm(noteId, rem.title, selectedReminderMillis);
+            }
+
+            // Lưu ghi âm đang chờ (nếu ghi chú mới vừa được tạo)
+            if (pendingRecordingPath != null) {
+                saveRecordingToDb(noteId, pendingRecordingPath, pendingRecordingDuration);
+                pendingRecordingPath = null;
+                pendingRecordingDuration = 0;
             }
 
             runOnUiThread(() -> {
@@ -839,18 +904,14 @@ public class CreateNoteActivity extends AppCompatActivity {
         intent.putExtra(ReminderReceiver.KEY_NOTE_ID, noteId);
         intent.putExtra(ReminderReceiver.KEY_TITLE, "Nhắc nhở: " + title);
         intent.putExtra(ReminderReceiver.KEY_MESSAGE, "Đến giờ kiểm tra ghi chú: " + title);
-
-        PendingIntent pending = PendingIntent.getBroadcast(
-                this, noteId, intent,
+        PendingIntent pending = PendingIntent.getBroadcast(this, noteId, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-
         if (alarmManager != null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                if (alarmManager.canScheduleExactAlarms()) {
+                if (alarmManager.canScheduleExactAlarms())
                     alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, timeInMillis, pending);
-                } else {
+                else
                     alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, timeInMillis, pending);
-                }
             } else {
                 alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, timeInMillis, pending);
             }

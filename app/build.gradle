@@ -76,4 +76,7 @@ dependencies {
 
     // RichEditor for Notes (Tables, Image, Formatting)
     implementation 'jp.wasabeef:richeditor-android:2.0.0'
+
+    // Biometric (khóa ghi chú bằng vân tay)
+    implementation 'androidx.biometric:biometric:1.1.0'
 }

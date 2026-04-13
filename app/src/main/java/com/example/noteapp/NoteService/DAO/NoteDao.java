@@ -39,4 +39,7 @@ public interface NoteDao {
 
     @Query("DELETE FROM notes WHERE note_id = :noteId")
     void hardDeleteNote(int noteId);
-}
+
+    @Query("UPDATE notes SET is_locked = :isLocked, pin_hash = :pinHash WHERE note_id = :noteId")
+    void updateLockStatus(int noteId, int isLocked, String pinHash);
+}
