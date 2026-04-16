@@ -15,6 +15,7 @@ import com.example.noteapp.R;
 import com.example.noteapp.TagService.Entity.Tag;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import android.content.SharedPreferences;
 
@@ -28,6 +29,7 @@ public class ManageTagsActivity extends AppCompatActivity {
 
     private boolean isEditMode = false;
     private int sessionUserId;
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +57,12 @@ public class ManageTagsActivity extends AppCompatActivity {
         loadTags();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        executor.shutdown();
+    }
+
     private void showAddTagDialog() {
         EditText input = new EditText(this);
         input.setHint("Nhập tên tag");
@@ -77,7 +85,7 @@ public class ManageTagsActivity extends AppCompatActivity {
             return;
         }
 
-        Executors.newSingleThreadExecutor().execute(() -> {
+        executor.execute(() -> {
             AppDatabase db = AppDatabase.getInstance(getApplicationContext());
 
             Tag exist = db.tagDao().getTagByName(tagName, sessionUserId);
@@ -100,7 +108,7 @@ public class ManageTagsActivity extends AppCompatActivity {
     }
 
     private void loadTags() {
-        Executors.newSingleThreadExecutor().execute(() -> {
+        executor.execute(() -> {
             List<Tag> tags = AppDatabase.getInstance(getApplicationContext())
                     .tagDao()
                     .getAllTags(sessionUserId);
@@ -180,7 +188,7 @@ public class ManageTagsActivity extends AppCompatActivity {
     }
 
     private void deleteTag(Tag tag) {
-        Executors.newSingleThreadExecutor().execute(() -> {
+        executor.execute(() -> {
             AppDatabase db = AppDatabase.getInstance(getApplicationContext());
 
             db.tagDao().deleteNoteTagsByTagId(tag.tagId);

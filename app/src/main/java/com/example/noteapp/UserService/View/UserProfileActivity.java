@@ -49,6 +49,8 @@ public class UserProfileActivity extends AppCompatActivity {
     private android.widget.ImageView eyePassword;
     private boolean isShowPass = false;
     private Switch switchDarkMode;
+    private final java.util.concurrent.ExecutorService executor =
+            java.util.concurrent.Executors.newSingleThreadExecutor();
 
     private final ActivityResultLauncher<Intent> pickImageLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -56,17 +58,41 @@ public class UserProfileActivity extends AppCompatActivity {
                 if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                     Uri uri = result.getData().getData();
                     if (uri != null) {
-                        try {
-                            getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                        // Copy ảnh vào internal storage → path bền vững, không bị revoke sau reinstall
+                        String localPath = copyUriToInternalStorage(uri);
+                        if (localPath != null) {
+                            currentAvatarUri = localPath;
+                            Glide.with(this).load(localPath)
+                                    .error(android.R.drawable.ic_menu_myplaces)
+                                    .into(imgProfileAvatar);
+                        } else {
+                            Toast.makeText(this, "Không thể tải ảnh", Toast.LENGTH_SHORT).show();
                         }
-                        currentAvatarUri = uri.toString();
-                        Glide.with(this).load(currentAvatarUri).into(imgProfileAvatar);
                     }
                 }
             }
     );
+
+    /** Copy ảnh từ content URI vào app's private files/avatars/ và trả về absolute path */
+    private String copyUriToInternalStorage(Uri uri) {
+        try {
+            java.io.File avatarDir = new java.io.File(getFilesDir(), "avatars");
+            if (!avatarDir.exists()) avatarDir.mkdirs();
+            java.io.File dest = new java.io.File(avatarDir, "avatar_" + sessionUserId + ".jpg");
+            try (java.io.InputStream in = getContentResolver().openInputStream(uri);
+                 java.io.FileOutputStream out = new java.io.FileOutputStream(dest)) {
+                if (in == null) return null;
+                byte[] buf = new byte[8192];
+                int len;
+                while ((len = in.read(buf)) != -1) out.write(buf, 0, len);
+            }
+            return dest.getAbsolutePath();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -142,8 +168,14 @@ public class UserProfileActivity extends AppCompatActivity {
         loadUserProfile();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        executor.shutdown();
+    }
+
     private void loadUserProfile() {
-        Executors.newSingleThreadExecutor().execute(() -> {
+        executor.execute(() -> {
             User user = userDao.getUserById(sessionUserId);
             currentUser = user;
             runOnUiThread(() -> {
@@ -155,7 +187,15 @@ public class UserProfileActivity extends AppCompatActivity {
                     currentAvatarUri = user.avatar;
                     
                     if (user.avatar != null && !user.avatar.isEmpty()) {
-                        Glide.with(this).load(user.avatar).into(imgProfileAvatar);
+                        try {
+                            Glide.with(this)
+                                    .load(user.avatar)
+                                    .error(android.R.drawable.ic_menu_myplaces)
+                                    .placeholder(android.R.drawable.ic_menu_myplaces)
+                                    .into(imgProfileAvatar);
+                        } catch (Exception e) {
+                            imgProfileAvatar.setImageResource(android.R.drawable.ic_menu_myplaces);
+                        }
                     }
                 }
             });
@@ -176,7 +216,7 @@ public class UserProfileActivity extends AppCompatActivity {
         btnSaveProfile.setEnabled(false);
         String now = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
 
-        Executors.newSingleThreadExecutor().execute(() -> {
+        executor.execute(() -> {
             User user = userDao.getUserById(sessionUserId);
             if (user != null) {
                 String phone = user.phone != null ? user.phone : "";

@@ -3,6 +3,7 @@ package com.example.noteapp.NoteService.View;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -13,10 +14,14 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.noteapp.CalendarService.View.CalendarActivity;
 import com.example.noteapp.Data.AppDatabase;
 import com.example.noteapp.NoteService.Adapter.NoteAdapter;
 import com.example.noteapp.NoteService.Entity.Note;
@@ -27,6 +32,7 @@ import com.example.noteapp.TagService.View.ManageTagsActivity;
 import com.example.noteapp.UserService.DAO.UserDao;
 import com.example.noteapp.UserService.Entity.User;
 import com.example.noteapp.UserService.View.UserProfileActivity;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -45,13 +51,14 @@ public class NoteHomeActivity extends AppCompatActivity {
     private LinearLayout layoutTagChips;
     private ImageView imgAvatar;
     private TextView tvUserName;
+    private BottomNavigationView bottomNav;
     private UserDao userDao;
     private int sessionUserId;
 
     private final List<Tag> allTags = new ArrayList<>();
     private Integer selectedTagId = null;
 
-    // Shared ExecutorService – tái dụng thread pool, tránh tạo mới liên tục
+    // Shared ExecutorService
     private final ExecutorService executor = Executors.newFixedThreadPool(3);
 
     @Override
@@ -67,6 +74,18 @@ public class NoteHomeActivity extends AppCompatActivity {
         layoutTagChips = findViewById(R.id.layoutTagChips);
         imgAvatar      = findViewById(R.id.imgAvatar);
         tvUserName     = findViewById(R.id.tvUserName);
+        bottomNav      = findViewById(R.id.bottomNav);
+
+        // Status bar padding via WindowInsets
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+        View header = findViewById(R.id.headerLayout);
+        if (header != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(header, (v, insets) -> {
+                int top = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top;
+                v.setPadding(v.getPaddingLeft(), top + 8, v.getPaddingRight(), v.getPaddingBottom());
+                return WindowInsetsCompat.CONSUMED;
+            });
+        }
 
         userDao = AppDatabase.getInstance(this).userDao();
         SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
@@ -74,7 +93,7 @@ public class NoteHomeActivity extends AppCompatActivity {
 
         rvNotes.setLayoutManager(new LinearLayoutManager(this));
         adapter = new NoteAdapter(this);
-        rvNotes.setAdapter(adapter); // Chỉ set 1 lần duy nhất
+        rvNotes.setAdapter(adapter);
 
         btnAdd.setOnClickListener(v -> openCreate());
         fabAdd.setOnClickListener(v -> openCreate());
@@ -83,6 +102,29 @@ public class NoteHomeActivity extends AppCompatActivity {
 
         TextView btnTrash = findViewById(R.id.btnTrash);
         btnTrash.setOnClickListener(v -> startActivity(new Intent(this, TrashActivity.class)));
+
+        // Bottom Navigation
+        if (bottomNav != null) {
+            bottomNav.setOnItemSelectedListener(item -> {
+                int id = item.getItemId();
+                if (id == R.id.nav_home) {
+                    return true; // already here
+                } else if (id == R.id.nav_search) {
+                    startActivity(new Intent(this, SearchActivity.class));
+                    bottomNav.post(() -> bottomNav.setSelectedItemId(R.id.nav_home));
+                    return true;
+                } else if (id == R.id.nav_calendar) {
+                    startActivity(new Intent(this, CalendarActivity.class));
+                    bottomNav.post(() -> bottomNav.setSelectedItemId(R.id.nav_home));
+                    return true;
+                } else if (id == R.id.nav_profile) {
+                    startActivity(new Intent(this, UserProfileActivity.class));
+                    bottomNav.post(() -> bottomNav.setSelectedItemId(R.id.nav_home));
+                    return true;
+                }
+                return false;
+            });
+        }
 
         // Click: mở ghi chú (kiểm tra khóa nếu cần)
         adapter.setOnNoteClickListener(note -> {
@@ -138,8 +180,13 @@ public class NoteHomeActivity extends AppCompatActivity {
                 @Override public void onCancel() {}
             });
         } else {
-            // Dự phòng: không có khóa hợp lệ → mở thẳng
-            openNoteDetail(note.noteId);
+            // Thiết bị không hỗ trợ vân tay và không có PIN → không thể mở
+            // Đây là trường hợp bất thường (lock được set nhưng không có phương thức xác thực)
+            new androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle("⚠️ Không thể mở")
+                    .setMessage("Ghi chú này đang bị khóa bằng vân tay nhưng thiết bị của bạn không hỗ trợ xác thực sinh trắc học. Hãy hủy khóa từ màn hình chính.")
+                    .setPositiveButton("OK", null)
+                    .show();
         }
     }
 
@@ -216,10 +263,12 @@ public class NoteHomeActivity extends AppCompatActivity {
         executor.execute(() -> {
             AppDatabase.getInstance(getApplicationContext())
                     .noteDao().updateLockStatus(noteId, isLocked, pinHash);
-            runOnUiThread(() -> {
-                Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-                loadNotes();
-            });
+            if (!isDestroyed()) {
+                runOnUiThread(() -> {
+                    Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+                    loadNotes();
+                });
+            }
         });
     }
 
@@ -233,10 +282,12 @@ public class NoteHomeActivity extends AppCompatActivity {
                     executor.execute(() -> {
                         AppDatabase.getInstance(getApplicationContext())
                                 .noteDao().softDeleteNote(note.noteId, System.currentTimeMillis());
-                        runOnUiThread(() -> {
-                            Toast.makeText(this, "Đã chuyển vào thùng rác", Toast.LENGTH_SHORT).show();
-                            loadNotes();
-                        });
+                        if (!isDestroyed()) {
+                            runOnUiThread(() -> {
+                                Toast.makeText(this, "Đã chuyển vào thùng rác", Toast.LENGTH_SHORT).show();
+                                loadNotes();
+                            });
+                        }
                     });
                 })
                 .setNegativeButton("Hủy", null)
@@ -253,15 +304,26 @@ public class NoteHomeActivity extends AppCompatActivity {
         if (sessionUserId == -1) return;
         executor.execute(() -> {
             User user = userDao.getUserById(sessionUserId);
-            runOnUiThread(() -> {
-                if (user != null) {
-                    tvUserName.setText(
-                            (user.fullName != null && !user.fullName.isEmpty()) ? user.fullName : user.username);
-                    if (user.avatar != null && !user.avatar.isEmpty()) {
-                        Glide.with(this).load(user.avatar).into(imgAvatar);
+            if (!isDestroyed()) {
+                runOnUiThread(() -> {
+                    if (user != null) {
+                        tvUserName.setText(
+                                (user.fullName != null && !user.fullName.isEmpty()) ? user.fullName : user.username);
+                        if (user.avatar != null && !user.avatar.isEmpty()) {
+                            try {
+                                android.net.Uri avatarUri = android.net.Uri.parse(user.avatar);
+                                Glide.with(this)
+                                        .load(avatarUri)
+                                        .error(android.R.drawable.ic_menu_myplaces)
+                                        .placeholder(android.R.drawable.ic_menu_myplaces)
+                                        .into(imgAvatar);
+                            } catch (Exception e) {
+                                imgAvatar.setImageResource(android.R.drawable.ic_menu_myplaces);
+                            }
+                        }
                     }
-                }
-            });
+                });
+            }
         });
     }
 
@@ -333,7 +395,9 @@ public class NoteHomeActivity extends AppCompatActivity {
             } else {
                 notes = db.tagDao().getNotesByTagId(selectedTagId, sessionUserId);
             }
-            runOnUiThread(() -> adapter.setData(notes));
+            if (!isDestroyed()) {
+                runOnUiThread(() -> adapter.setData(notes));
+            }
         });
     }
 }

@@ -1,115 +1,123 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cardNote"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="10dp"
-    android:layout_marginHorizontal="12dp"
-    app:cardCornerRadius="14dp"
-    app:cardElevation="2dp"
-    app:strokeColor="@color/color_divider"
-    app:strokeWidth="1dp">
+    android:layout_marginBottom="10dp"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="4dp"
+    app:cardBackgroundColor="@color/bg_card">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="80dp">
+        android:orientation="horizontal">
 
+        <!-- Left accent bar (colored by note color) -->
+        <View
+            android:id="@+id/accentBar"
+            android:layout_width="4dp"
+            android:layout_height="match_parent"
+            android:background="@color/primary"/>
+
+        <!-- Content -->
         <LinearLayout
-            android:id="@+id/contentLayout"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:orientation="vertical"
-            android:paddingTop="16dp"
-            android:paddingStart="16dp"
-            android:paddingBottom="16dp"
-            android:paddingEnd="110dp">
+            android:padding="14dp">
 
-            <TextView
-                android:id="@+id/txtTitle"
-                android:layout_width="wrap_content"
+            <!-- Title row + lock icon -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Project Meeting"
-                android:textColor="@color/text_primary_app"
-                android:textSize="18sp"
-                android:textStyle="bold"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/tvTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@color/text_primary_app"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:maxLines="1"
+                    android:ellipsize="end"/>
+
+                <ImageView
+                    android:id="@+id/imgLock"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_lock"
+                    android:visibility="gone"
+                    app:tint="@color/primary"/>
+            </LinearLayout>
+
+            <!-- Subtitle -->
+            <TextView
+                android:id="@+id/tvSubtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:textColor="@color/text_secondary_app"
+                android:textSize="13sp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:visibility="gone"/>
+
+            <!-- Content preview -->
+            <TextView
+                android:id="@+id/tvContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/text_secondary_app"
+                android:textSize="13sp"
                 android:maxLines="2"
                 android:ellipsize="end"/>
 
-            <TextView
-                android:id="@+id/txtContent"
+            <!-- Tags + Link row -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="8dp">
+
+                <TextView
+                    android:id="@+id/tvTags"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@color/primary"
+                    android:textSize="11sp"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:visibility="gone"/>
+
+                <TextView
+                    android:id="@+id/txtLink"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/info"
+                    android:textSize="11sp"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:visibility="gone"/>
+            </LinearLayout>
+
+            <!-- Time -->
+            <TextView
+                android:id="@+id/tvTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:maxLines="3"
-                android:ellipsize="end"
-                android:text="Discussed project milestones and upcoming tasks..."
-                android:textColor="@color/text_secondary_app"
-                android:textSize="14sp"/>
-
-            <TextView
-                android:id="@+id/txtLink"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/bg_link_chip"
-                android:paddingHorizontal="10dp"
-                android:paddingVertical="4dp"
-                android:text="dailyplanner.com"
-                android:textColor="#7C8DA5"
-                android:textSize="12sp"
-                android:visibility="gone"/>
+                android:textColor="@color/text_hint"
+                android:textSize="11sp"/>
         </LinearLayout>
-
-        <!-- Thời gian: trên cùng bên phải -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-
-            <!-- Icon khóa: hiện khi ghi chú bị khóa -->
-            <ImageView
-                android:id="@+id/imgLockIcon"
-                android:layout_width="14dp"
-                android:layout_height="14dp"
-                android:layout_marginEnd="6dp"
-                android:src="@drawable/ic_lock"
-                app:tint="@color/text_secondary_app"
-                android:visibility="gone"/>
-
-            <TextView
-                android:id="@+id/txtTime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Vừa xong"
-                android:textColor="@color/text_secondary_app"
-                android:textStyle="bold"
-                android:textSize="12sp"/>
-        </LinearLayout>
-
-        <!-- Góc dưới phải: Ảnh thumbnail -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginEnd="20dp"
-            android:layout_marginBottom="36dp">
-
-            <ImageView
-                android:id="@+id/imgThumb"
-                android:layout_width="84dp"
-                android:layout_height="84dp"
-                android:scaleType="centerCrop"
-                android:background="@drawable/bg_image_thumb"
-                android:visibility="gone"/>
-        </LinearLayout>
-
-    </RelativeLayout>
-
-</com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

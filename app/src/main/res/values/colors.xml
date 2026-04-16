@@ -3,54 +3,63 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <!-- Brand Colors -->
-    <color name="primary">#1A1A2E</color>
-    <color name="primary_dark">#16213E</color>
-    <color name="accent">#F4B400</color>
-    <color name="accent_dark">#D9A000</color>
-    <color name="accent_light">#FFF8E1</color>
+    <!-- ── Gen-Z Brand Colors ── -->
+    <color name="primary">#7C3AED</color>
+    <color name="primary_dark">#5B21B6</color>
+    <color name="primary_light">#EDE9FE</color>
+    <color name="accent">#EC4899</color>
+    <color name="accent_dark">#BE185D</color>
+    <color name="accent_light">#FCE7F3</color>
+    <color name="accent_gold">#F59E0B</color>
 
-    <!-- Background -->
-    <color name="bg_light">#F6F6F6</color>
+    <!-- ── Background ── -->
+    <color name="bg_app">#F8F7FF</color>
     <color name="bg_card">#FFFFFF</color>
-    <color name="bg_input">#F0F0F0</color>
+    <color name="bg_dark">#0F0F1A</color>
+    <color name="bg_dark_surface">#1A1A2E</color>
+    <color name="bg_input_app">#EEECf8</color>
+    <color name="bg_input">#F0EEF9</color>
 
-    <!-- Text -->
-    <color name="text_primary">#1A1A2E</color>
-    <color name="text_secondary">#666666</color>
-    <color name="text_hint">#AAAAAA</color>
+    <!-- ── Text ── -->
+    <color name="text_primary_app">#1E1B4B</color>
+    <color name="text_secondary_app">#6B7280</color>
+    <color name="text_hint">#9CA3AF</color>
+    <color name="text_primary">#1E1B4B</color>
+    <color name="text_secondary">#6B7280</color>
 
-    <!-- Status Colors -->
-    <color name="success">#4CAF50</color>
-    <color name="error">#F44336</color>
-    <color name="warning">#FF9800</color>
-    <color name="info">#2196F3</color>
+    <!-- ── Status ── -->
+    <color name="success">#10B981</color>
+    <color name="error">#EF4444</color>
+    <color name="warning">#F59E0B</color>
+    <color name="info">#3B82F6</color>
 
-    <!-- Notification -->
-    <color name="notif_unread_bg">#FFF8E1</color>
+    <!-- ── UI Elements ── -->
+    <color name="divider">#E5E7EB</color>
+    <color name="color_divider">#DDD6FE</color>
+    <color name="ripple">#207C3AED</color>
+    <color name="shadow">#157C3AED</color>
+
+    <!-- ── Button Styles ── -->
+    <color name="btn_yellow">#F59E0B</color>
+    <color name="btn_yellow_text">#1E1B4B</color>
+    <color name="btn_delete_text">#EF4444</color>
+    <color name="btn_primary_text">#FFFFFF</color>
+
+    <!-- ── Calendar Colors ── -->
+    <color name="cal_today_bg">#7C3AED</color>
+    <color name="cal_today_text">#FFFFFF</color>
+    <color name="cal_dot">#EC4899</color>
+    <color name="cal_weekend">#EF4444</color>
+    <color name="cal_other_month">#D1D5DB</color>
+
+    <!-- ── Legacy keep-alive (used in older layouts) ── -->
+    <color name="primary_variant">#5B21B6</color>
+    <color name="bg_light">#F8F7FF</color>
+    <color name="notif_unread_bg">#EDE9FE</color>
     <color name="notif_read_bg">#FFFFFF</color>
-
-    <!-- Social Buttons -->
     <color name="google_red">#EA4335</color>
     <color name="facebook_blue">#1877F2</color>
-
-    <!-- UI Elements -->
-    <color name="divider">#E0E0E0</color>
-    <color name="ripple">#20000000</color>
-    <color name="shadow">#10000000</color>
-
-    <!-- OTP Boxes -->
-    <color name="otp_border">#CCCCCC</color>
-    <color name="otp_border_active">#F4B400</color>
+    <color name="otp_border">#DDD6FE</color>
+    <color name="otp_border_active">#7C3AED</color>
     <color name="otp_bg">#FFFFFF</color>
-
-    <!-- App Specific Semantic Colors (Day) -->
-    <color name="bg_app">#F7F3EF</color>
-    <color name="bg_input_app">#EAE5E0</color>
-    <color name="text_primary_app">#2E2A27</color>
-    <color name="text_secondary_app">#7C736B</color>
-    <color name="btn_yellow">#F3C64E</color>
-    <color name="btn_yellow_text">#3A312B</color>
-    <color name="btn_delete_text">#CC4444</color>
-    <color name="color_divider">#D9D5D2</color>
 </resources>

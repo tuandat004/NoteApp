@@ -77,6 +77,12 @@
             android:name=".SearchService.View.SearchActivity"
             android:exported="false" />
 
+        <!-- CalendarService -->
+        <activity
+            android:name=".CalendarService.View.CalendarActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"/>
+
     </application>
 
 </manifest>

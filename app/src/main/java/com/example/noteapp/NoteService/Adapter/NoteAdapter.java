@@ -17,7 +17,6 @@ import androidx.core.graphics.ColorUtils;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.example.noteapp.NoteService.Entity.Note;
 import com.example.noteapp.NoteService.View.NoteDetailActivity;
 import com.example.noteapp.R;
@@ -97,65 +96,59 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
     public void onBindViewHolder(@NonNull NoteViewHolder holder, int position) {
         Note note = list.get(position);
 
-        // Background Color
+        // Background Color + accent bar
+        int noteColor = -1;
         if (note.color != null && !note.color.isEmpty()) {
             try {
-                int parsedColor = Color.parseColor(note.color);
-                holder.cardView.setCardBackgroundColor(getFadedColorForDarkMode(parsedColor));
+                noteColor = Color.parseColor(note.color);
+                holder.cardView.setCardBackgroundColor(getFadedColorForDarkMode(noteColor));
             } catch (Exception e) {
                 holder.cardView.setCardBackgroundColor(getSurfaceColor());
             }
         } else {
             holder.cardView.setCardBackgroundColor(getSurfaceColor());
         }
+        // Accent bar: use a slightly darker shade of the note color
+        if (holder.accentBar != null) {
+            if (noteColor != -1) {
+                float[] hsl = new float[3];
+                ColorUtils.colorToHSL(noteColor, hsl);
+                hsl[1] = Math.min(1f, hsl[1] + 0.2f);
+                hsl[2] = Math.max(0f, hsl[2] - 0.15f);
+                holder.accentBar.setBackgroundColor(ColorUtils.HSLToColor(hsl));
+            } else {
+                holder.accentBar.setBackgroundColor(0xFF7C3AED);
+            }
+        }
 
         // Title
         String rawTitle = (note.title != null && !note.title.isEmpty())
                 ? note.title : "Không có tiêu đề";
-        holder.txtTitle.setText(highlight(rawTitle, highlightKeyword));
+        holder.tvTitle.setText(highlight(rawTitle, highlightKeyword));
 
-        // Icon khóa
-        if (holder.tvLockIcon != null) {
-            holder.tvLockIcon.setVisibility(note.isLocked == 1 ? View.VISIBLE : View.GONE);
+        // Lock icon
+        if (holder.imgLock != null) {
+            holder.imgLock.setVisibility(note.isLocked == 1 ? View.VISIBLE : View.GONE);
         }
 
         // Time
-        holder.txtTime.setText(getRelativeTime(note.createdAt));
+        holder.tvTime.setText(getRelativeTime(note.updatedAt != null ? note.updatedAt : note.createdAt));
 
         // Content preview
         if (note.content != null && !note.content.isEmpty()) {
             String plain = extractPlainTextFast(note.content);
-            holder.txtContent.setText(highlight(plain, highlightKeyword));
+            holder.tvContent.setText(highlight(plain, highlightKeyword));
         } else {
-            holder.txtContent.setText("");
+            holder.tvContent.setText("");
         }
 
-        // Thumbnail image
-        String firstImageSrc = extractFirstImageFast(note.content);
-        if (firstImageSrc != null) {
-            holder.imgThumb.setVisibility(View.VISIBLE);
-            if (firstImageSrc.startsWith("data:")) {
-                try {
-                    String b64 = firstImageSrc.substring(firstImageSrc.indexOf(",") + 1);
-                    byte[] bytes = android.util.Base64.decode(b64, android.util.Base64.DEFAULT);
-                    Glide.with(context).asBitmap().load(bytes).centerCrop().into(holder.imgThumb);
-                } catch (Exception e) {
-                    holder.imgThumb.setVisibility(View.GONE);
-                }
-            } else {
-                Glide.with(context).load(firstImageSrc).centerCrop().into(holder.imgThumb);
-            }
-        } else {
-            holder.imgThumb.setVisibility(View.GONE);
-        }
-
-        // First link
+        // First link - show domain only
         String firstLink = extractFirstLinkFast(note.content);
-        if (firstLink != null) {
+        if (firstLink != null && holder.txtLink != null) {
             holder.txtLink.setVisibility(View.VISIBLE);
             String display = firstLink.replaceAll("https?://", "").replaceAll("/.*$", "");
             holder.txtLink.setText("🔗 " + display);
-        } else {
+        } else if (holder.txtLink != null) {
             holder.txtLink.setVisibility(View.GONE);
         }
 
@@ -301,19 +294,20 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
     // ─── ViewHolder ───────────────────────────────────────────────────────────
 
     static class NoteViewHolder extends RecyclerView.ViewHolder {
-        TextView txtTitle, txtTime, txtContent, txtLink;
-        ImageView imgThumb, tvLockIcon;
-        com.google.android.material.card.MaterialCardView cardView;
+        TextView tvTitle, tvTime, tvContent, txtLink;
+        ImageView imgLock;
+        View accentBar;
+        androidx.cardview.widget.CardView cardView;
 
         NoteViewHolder(@NonNull View itemView) {
             super(itemView);
-            txtTitle   = itemView.findViewById(R.id.txtTitle);
-            txtTime    = itemView.findViewById(R.id.txtTime);
-            txtContent = itemView.findViewById(R.id.txtContent);
-            txtLink    = itemView.findViewById(R.id.txtLink);
-            imgThumb   = itemView.findViewById(R.id.imgThumb);
-            tvLockIcon = itemView.findViewById(R.id.imgLockIcon); 
-            cardView   = (com.google.android.material.card.MaterialCardView) itemView;
+            tvTitle   = itemView.findViewById(R.id.tvTitle);
+            tvTime    = itemView.findViewById(R.id.tvTime);
+            tvContent = itemView.findViewById(R.id.tvContent);
+            txtLink   = itemView.findViewById(R.id.txtLink);
+            imgLock   = itemView.findViewById(R.id.imgLock);
+            accentBar = itemView.findViewById(R.id.accentBar);
+            cardView  = itemView.findViewById(R.id.cardNote);
         }
     }
 }

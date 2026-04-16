@@ -15,7 +15,7 @@ import com.example.noteapp.NoteService.Adapter.NoteAdapter;
 import com.example.noteapp.NoteService.Entity.Note;
 import com.example.noteapp.R;
 
-import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class TrashActivity extends AppCompatActivity {
@@ -24,6 +24,7 @@ public class TrashActivity extends AppCompatActivity {
     private RecyclerView rvTrashNotes;
     private NoteAdapter adapter;
     private int sessionUserId;
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +50,12 @@ public class TrashActivity extends AppCompatActivity {
         loadDeletedNotes();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        executor.shutdown();
+    }
+
     private void loadDeletedNotes() {
         if (sessionUserId == -1) return;
         AppDatabase db = AppDatabase.getInstance(getApplicationContext());
@@ -72,7 +79,7 @@ public class TrashActivity extends AppCompatActivity {
     }
 
     private void restoreNote(int noteId) {
-        Executors.newSingleThreadExecutor().execute(() -> {
+        executor.execute(() -> {
             AppDatabase db = AppDatabase.getInstance(getApplicationContext());
             db.noteDao().restoreNote(noteId);
             runOnUiThread(() -> Toast.makeText(this, "Đã khôi phục ghi chú", Toast.LENGTH_SHORT).show());
@@ -84,7 +91,7 @@ public class TrashActivity extends AppCompatActivity {
             .setTitle("Xóa Vĩnh Viễn")
             .setMessage("Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa?")
             .setPositiveButton("Xóa", (dialog, which) -> {
-                Executors.newSingleThreadExecutor().execute(() -> {
+                executor.execute(() -> {
                     AppDatabase db = AppDatabase.getInstance(getApplicationContext());
                     db.noteDao().hardDeleteNote(noteId);
                     runOnUiThread(() -> Toast.makeText(this, "Đã xóa vĩnh viễn", Toast.LENGTH_SHORT).show());

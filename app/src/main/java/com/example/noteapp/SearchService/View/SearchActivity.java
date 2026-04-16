@@ -83,7 +83,13 @@ public class SearchActivity extends AppCompatActivity {
         
         for (Note note : fullList) {
             String title = note.title != null ? removeAccents(note.title.toLowerCase()) : "";
-            String content = note.content != null ? removeAccents(note.content.toLowerCase()) : "";
+            // Strip HTML tags before searching to avoid false matches on HTML tag names
+            String rawContent = note.content != null ? note.content : "";
+            String plainContent = rawContent.replaceAll("<[^>]+>", " ")
+                    .replace("&nbsp;", " ").replace("&amp;", "&")
+                    .replace("&lt;", "<").replace("&gt;", ">")
+                    .replaceAll("\\s+", " ").trim();
+            String content = removeAccents(plainContent.toLowerCase());
             
             if (title.contains(normalizedQuery) || content.contains(normalizedQuery)) {
                 filtered.add(note);

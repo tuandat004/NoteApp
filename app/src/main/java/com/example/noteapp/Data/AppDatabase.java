@@ -19,6 +19,8 @@ import com.example.noteapp.TagService.DAO.TagDao;
 import com.example.noteapp.TagService.Entity.Tag;
 import com.example.noteapp.UserService.DAO.UserDao;
 import com.example.noteapp.UserService.Entity.User;
+import com.example.noteapp.CalendarService.Entity.CalendarNote;
+import com.example.noteapp.CalendarService.DAO.CalendarNoteDao;
 
 import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
@@ -31,9 +33,10 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
         User.class,
         Reminder.class,
         AppNotification.class,
-        AudioRecording.class
+        AudioRecording.class,
+        CalendarNote.class
     },
-    version = 12,
+    version = 13,
     exportSchema = false
 )
 public abstract class AppDatabase extends RoomDatabase {
@@ -46,6 +49,7 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract ReminderDao reminderDao();
     public abstract NotificationDao notificationDao();
     public abstract AudioRecordingDao audioRecordingDao();
+    public abstract CalendarNoteDao calendarNoteDao();
 
     // Migration 8 → 9: thêm cột deleted_at
     static final Migration MIGRATION_8_9 = new Migration(8, 9) {
@@ -136,6 +140,24 @@ public abstract class AppDatabase extends RoomDatabase {
         }
     };
 
+    // Migration 12 → 13: thêm bảng calendar_notes
+    static final Migration MIGRATION_12_13 = new Migration(12, 13) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            database.execSQL(
+                "CREATE TABLE IF NOT EXISTS calendar_notes (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                "userId INTEGER NOT NULL DEFAULT 0, " +
+                "dateStr TEXT, " +
+                "title TEXT, " +
+                "content TEXT, " +
+                "reminderTime TEXT, " +
+                "createdAt TEXT, " +
+                "updatedAt TEXT)"
+            );
+        }
+    };
+
     public static AppDatabase getInstance(Context context) {
         if (INSTANCE == null) {
             synchronized (AppDatabase.class) {
@@ -149,7 +171,8 @@ public abstract class AppDatabase extends RoomDatabase {
                                 MIGRATION_8_9,
                                 MIGRATION_9_10,
                                 MIGRATION_10_11,
-                                MIGRATION_11_12
+                                MIGRATION_11_12,
+                                MIGRATION_12_13
                             )
                             .fallbackToDestructiveMigration()
                             .build();

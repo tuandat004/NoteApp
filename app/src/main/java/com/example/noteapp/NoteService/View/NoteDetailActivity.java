@@ -63,7 +63,6 @@ public class NoteDetailActivity extends AppCompatActivity {
     private String sourceLang = "vi";      // ngôn ngữ gốc của note
     private String targetLang = "en";     // sẽ toggle
 
-    private MediaPlayer mediaPlayer; // Removed currentlyPlayingBtn and progressHandler fields
     private MediaPlayer inlinePlayer;
 
     private class AudioBridge {
@@ -87,7 +86,7 @@ public class NoteDetailActivity extends AppCompatActivity {
             });
         }
         @android.webkit.JavascriptInterface
-        public void delete(String domId, String path) {
+        public void delete(String path, String domId) {
             runOnUiThread(() -> {
                 Toast.makeText(NoteDetailActivity.this, "Không thể xoá khi đang xem", Toast.LENGTH_SHORT).show();
             });
@@ -166,16 +165,20 @@ public class NoteDetailActivity extends AppCompatActivity {
 
 
 
+    // Track if first load was done in onCreate to avoid double-load in onResume
+    private boolean initialLoadDone = false;
+
     @Override
     protected void onResume() {
         super.onResume();
+        if (!initialLoadDone) { initialLoadDone = true; return; }
         if (noteId != -1) loadNoteDetail(noteId);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (tts != null) { tts.stop(); tts.shutdown(); }
+        if (tts != null) { tts.stop(); tts.shutdown(); tts = null; }
         if (inlinePlayer != null) { inlinePlayer.release(); inlinePlayer = null; }
         executor.shutdown();
     }
@@ -334,38 +337,128 @@ public class NoteDetailActivity extends AppCompatActivity {
     }
 
     // ─── Dịch với Placeholder ────────────────────────────────────────────────
-    // Trích xuất các block Audio và Link để không bị dịch
-    private java.util.List<String> placeholders = new java.util.ArrayList<>();
-    private void showTranslateMenu() {
-        String[] options;
-        if (!isTranslated) {
-            options = new String[]{"Dịch sang Tiếng Anh (EN)", "Hiển thị Tiếng Việt (Bản gốc)"};
-        } else {
-            options = new String[]{"Quay về bản gốc", "Dịch sang Tiếng Anh (EN)", "Hiển thị Tiếng Việt (Bản gốc)"};
-        }
+    // Danh sách ngôn ngữ hỗ trợ
+    private static final String[] LANG_NAMES = {
+        "🇻🇳 Tiếng Việt", "🇺🇸 English", "🇨🇳 中文", "🇯🇵 日本語", "🇰🇷 한국어",
+        "🇫🇷 Français", "🇩🇪 Deutsch", "🇪🇸 Español", "🇮🇹 Italiano",
+        "🇵🇹 Português", "🇷🇺 Русский", "🇹🇭 ภาษาไทย", "🇮🇩 Bahasa Indonesia",
+        "🇸🇦 العربية", "🇮🇳 हिन्दी", "🇳🇱 Nederlands", "🇵🇱 Polski",
+        "🇹🇷 Türkçe", "🇺🇦 Українська", "🇲🇾 Melayu"
+    };
+    private static final String[] LANG_CODES = {
+        "vi", "en", "zh", "ja", "ko",
+        "fr", "de", "es", "it",
+        "pt", "ru", "th", "id",
+        "ar", "hi", "nl", "pl",
+        "tr", "uk", "ms"
+    };
 
-        new AlertDialog.Builder(this)
-                .setTitle("🌐 Dịch ghi chú")
-                .setItems(options, (d, which) -> {
-                    if (isTranslated && which == 0) {
-                        isTranslated = false; translatedContent = null;
-                        btnTranslate.setText("🌐 Dịch");
-                        renderContent(currentContent);
+    private void showTranslateMenu() {
+        android.content.SharedPreferences prefs =
+                getSharedPreferences("translate_prefs", MODE_PRIVATE);
+        // Khôi phục lựa chọn lần trước
+        int savedFrom = prefs.getInt("lang_from_idx", 0); // default: vi
+        int savedTo   = prefs.getInt("lang_to_idx", 1);   // default: en
+
+        // Bọc trong mảng để có thể thay đổi trong lambda
+        int[] fromIdx = {savedFrom};
+        int[] toIdx   = {savedTo};
+
+        android.view.LayoutInflater inf = android.view.LayoutInflater.from(this);
+        android.widget.LinearLayout root = new android.widget.LinearLayout(this);
+        root.setOrientation(android.widget.LinearLayout.VERTICAL);
+        root.setPadding(dp(20), dp(16), dp(20), dp(8));
+
+        // ── Hàng "Từ" ──
+        android.widget.TextView lblFrom = new android.widget.TextView(this);
+        lblFrom.setText("Ngôn ngữ nguồn:");
+        lblFrom.setTextColor(0xFF888888);
+        lblFrom.setTextSize(12f);
+        root.addView(lblFrom);
+
+        android.widget.Spinner spFrom = new android.widget.Spinner(this);
+        android.widget.ArrayAdapter<String> adFrom = new android.widget.ArrayAdapter<>(
+                this, android.R.layout.simple_spinner_item, LANG_NAMES);
+        adFrom.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spFrom.setAdapter(adFrom);
+        spFrom.setSelection(fromIdx[0]);
+        android.widget.LinearLayout.LayoutParams spLP = new android.widget.LinearLayout.LayoutParams(
+                android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT);
+        spLP.setMargins(0, dp(4), 0, dp(12));
+        spFrom.setLayoutParams(spLP);
+        root.addView(spFrom);
+
+        // ── Nút hoán đổi ──
+        android.widget.Button btnSwap = new android.widget.Button(this);
+        btnSwap.setText("⇅  Hoán đổi");
+        btnSwap.setBackgroundTintList(
+                android.content.res.ColorStateList.valueOf(0xFFEDE9FE));
+        btnSwap.setTextColor(0xFF7C3AED);
+        btnSwap.setAllCaps(false);
+        android.widget.LinearLayout.LayoutParams swapLP = new android.widget.LinearLayout.LayoutParams(
+                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
+                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT);
+        swapLP.gravity = android.view.Gravity.CENTER_HORIZONTAL;
+        swapLP.setMargins(0, 0, 0, dp(12));
+        btnSwap.setLayoutParams(swapLP);
+        root.addView(btnSwap);
+
+        // ── Hàng "Sang" ──
+        android.widget.TextView lblTo = new android.widget.TextView(this);
+        lblTo.setText("Ngôn ngữ đích:");
+        lblTo.setTextColor(0xFF888888);
+        lblTo.setTextSize(12f);
+        root.addView(lblTo);
+
+        android.widget.Spinner spTo = new android.widget.Spinner(this);
+        android.widget.ArrayAdapter<String> adTo = new android.widget.ArrayAdapter<>(
+                this, android.R.layout.simple_spinner_item, LANG_NAMES);
+        adTo.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spTo.setAdapter(adTo);
+        spTo.setSelection(toIdx[0]);
+        android.widget.LinearLayout.LayoutParams spToLP = new android.widget.LinearLayout.LayoutParams(
+                android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT);
+        spToLP.setMargins(0, dp(4), 0, 0);
+        spTo.setLayoutParams(spToLP);
+        root.addView(spTo);
+
+        // Swap logic
+        btnSwap.setOnClickListener(v -> {
+            int tmpF = spFrom.getSelectedItemPosition();
+            int tmpT = spTo.getSelectedItemPosition();
+            spFrom.setSelection(tmpT);
+            spTo.setSelection(tmpF);
+        });
+
+        androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("🌐 Chọn ngôn ngữ dịch")
+                .setView(root)
+                .setPositiveButton("Dịch ngay", (d, w) -> {
+                    int fi = spFrom.getSelectedItemPosition();
+                    int ti = spTo.getSelectedItemPosition();
+                    if (fi == ti) {
+                        Toast.makeText(this, "Vui lòng chọn hai ngôn ngữ khác nhau", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    int menuIdx = isTranslated ? which - 1 : which;
-                    if (menuIdx == 1) { // Tiếng Việt (Bản gốc)
-                        isTranslated = false; translatedContent = null;
-                        btnTranslate.setText("🌐 Dịch");
-                        renderContent(currentContent);
-                        Toast.makeText(this, "Đang hiển thị bản gốc (Tiếng Việt)", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    String to = "en";
-                    String from = "vi";
-                    translateContent(from, to);
-                }).show();
+                    // Lưu lựa chọn
+                    prefs.edit().putInt("lang_from_idx", fi).putInt("lang_to_idx", ti).apply();
+                    translateContent(LANG_CODES[fi], LANG_CODES[ti]);
+                })
+                .setNeutralButton(isTranslated ? "Quay về bản gốc" : null, (d, w) -> {
+                    isTranslated = false; translatedContent = null;
+                    btnTranslate.setText("🌐 Dịch");
+                    renderContent(currentContent);
+                })
+                .setNegativeButton("Hủy", null)
+                .create();
+        dialog.show();
     }
+
+
+
+
 
     private void translateContent(String from, String to) {
         if (currentContent == null || currentContent.isEmpty()) return;
@@ -374,16 +467,16 @@ public class NoteDetailActivity extends AppCompatActivity {
         btnTranslate.setEnabled(false);
 
         executor.execute(() -> {
-            // Thay thế audio block và tag đặc biệt thành placeholder
-            placeholders.clear();
+            // Dùng local list để tránh race condition nếu dịch nhiều lần liên tiếp
+            java.util.List<String> lph = new java.util.ArrayList<>();
             String templated = currentContent;
             
             // Xử lý Audio block
             java.util.regex.Matcher mAudio = java.util.regex.Pattern.compile("(?is)<div[^>]*class=\"[^\"]*app-audio-record[^\"]*\"[^>]*>.*?</div>").matcher(templated);
             StringBuffer sb = new StringBuffer();
             while (mAudio.find()) {
-                placeholders.add(mAudio.group());
-                mAudio.appendReplacement(sb, "[[AUDIO_" + (placeholders.size() - 1) + "]]");
+                lph.add(mAudio.group());
+                mAudio.appendReplacement(sb, "[[AUDIO_" + (lph.size() - 1) + "]]");
             }
             mAudio.appendTail(sb);
             templated = sb.toString();
@@ -392,8 +485,8 @@ public class NoteDetailActivity extends AppCompatActivity {
             java.util.regex.Matcher mImg = java.util.regex.Pattern.compile("(?i)<img[^>]*>").matcher(templated);
             sb = new StringBuffer();
             while (mImg.find()) {
-                placeholders.add(mImg.group());
-                mImg.appendReplacement(sb, "[[IMG_" + (placeholders.size() - 1) + "]]");
+                lph.add(mImg.group());
+                mImg.appendReplacement(sb, "[[IMG_" + (lph.size() - 1) + "]]");
             }
             mImg.appendTail(sb);
             templated = sb.toString();
@@ -402,8 +495,8 @@ public class NoteDetailActivity extends AppCompatActivity {
             java.util.regex.Matcher mLink = java.util.regex.Pattern.compile("(?i)<a[^>]*>.*?</a>").matcher(templated);
             sb = new StringBuffer();
             while (mLink.find()) {
-                placeholders.add(mLink.group());
-                mLink.appendReplacement(sb, "[[LINK_" + (placeholders.size() - 1) + "]]");
+                lph.add(mLink.group());
+                mLink.appendReplacement(sb, "[[LINK_" + (lph.size() - 1) + "]]");
             }
             mLink.appendTail(sb);
             templated = sb.toString();
@@ -413,27 +506,29 @@ public class NoteDetailActivity extends AppCompatActivity {
 
             String translated = callMyMemoryApi(plainTextToTranslate, from, to);
             
-            runOnUiThread(() -> {
-                btnTranslate.setEnabled(true);
-                if (translated != null) {
-                    // Phục hồi lại các placeholder vào nội dung đã dịch
-                    String resultHtml = translated.replace("\n", "<br>");
-                    for (int i = 0; i < placeholders.size(); i++) {
-                        resultHtml = resultHtml.replace("[[AUDIO_" + i + "]]", placeholders.get(i));
-                        resultHtml = resultHtml.replace("[[IMG_" + i + "]]", placeholders.get(i));
-                        resultHtml = resultHtml.replace("[[LINK_" + i + "]]", placeholders.get(i));
+            if (!isDestroyed()) {
+                runOnUiThread(() -> {
+                    btnTranslate.setEnabled(true);
+                    if (translated != null) {
+                        // Phục hồi lại các placeholder vào nội dung đã dịch
+                        String resultHtml = translated.replace("\n", "<br>");
+                        for (int i = 0; i < lph.size(); i++) {
+                            resultHtml = resultHtml.replace("[[AUDIO_" + i + "]]", lph.get(i));
+                            resultHtml = resultHtml.replace("[[IMG_" + i + "]]", lph.get(i));
+                            resultHtml = resultHtml.replace("[[LINK_" + i + "]]", lph.get(i));
+                        }
+                        
+                        translatedContent = resultHtml;
+                        isTranslated = true;
+                        btnTranslate.setText("🌐 Gốc");
+                        renderContent(translatedContent);
+                        Toast.makeText(this, "✅ Đã dịch " + from.toUpperCase() + " → " + to.toUpperCase(), Toast.LENGTH_SHORT).show();
+                    } else {
+                        btnTranslate.setText("🌐 Dịch");
+                        Toast.makeText(this, "Dịch thất bại. Kiểm tra kết nối mạng.", Toast.LENGTH_SHORT).show();
                     }
-                    
-                    translatedContent = resultHtml;
-                    isTranslated = true;
-                    btnTranslate.setText("🌐 Gốc");
-                    renderContent(translatedContent);
-                    Toast.makeText(this, "✅ Đã dịch " + from.toUpperCase() + " → " + to.toUpperCase(), Toast.LENGTH_SHORT).show();
-                } else {
-                    btnTranslate.setText("🌐 Dịch");
-                    Toast.makeText(this, "Dịch thất bại. Kiểm tra kết nối mạng.", Toast.LENGTH_SHORT).show();
-                }
-            });
+                });
+            }
         });
     }
 
@@ -498,7 +593,7 @@ public class NoteDetailActivity extends AppCompatActivity {
                 .setNegativeButton("Hủy", null).show();
     }
 
-    // ─── Export PDF ───────────────────────────────────────────────────────────
+    // ─── Export PDF (Fixed: WebView must be in hierarchy) ─────────────────────
     private void exportNoteToPdf() {
         if (noteId == -1) return;
         executor.execute(() -> {
@@ -508,31 +603,57 @@ public class NoteDetailActivity extends AppCompatActivity {
             String content = note.content != null ? note.content : "";
             String created = note.createdAt != null ? note.createdAt : "";
             String html = "<html><head><style>"
-                    + "body{font-family:sans-serif;padding:20px;line-height:1.6;color:#111}"
-                    + "h1{color:#333;margin-bottom:5px}"
-                    + "p.date{color:#888;font-size:14px;margin-top:0;margin-bottom:20px}"
-                    + "img{max-width:100%;height:auto}"
-                    + "table{width:100%;border-collapse:collapse}"
-                    + "th,td{border:1px solid #ddd;padding:8px}"
+                    + "body{font-family:sans-serif;padding:24px;line-height:1.7;color:#111}"
+                    + "h1{color:#1a1a2e;margin-bottom:4px;font-size:22px}"
+                    + "p.date{color:#888;font-size:13px;margin-top:0;margin-bottom:20px;border-bottom:1px solid #eee;padding-bottom:10px}"
+                    + "img{max-width:100%;height:auto;border-radius:8px;margin:8px 0}"
+                    + "table{width:100%;border-collapse:collapse;margin:12px 0}"
+                    + "th,td{border:1px solid #ddd;padding:8px;text-align:left;}"
+                    + "tr:nth-child(even){background:#f9f9f9}"
+                    + ".app-audio-record{display:none}"
+                    + "a{color:#7C3AED}"
                     + "</style></head><body>"
                     + "<h1>" + title + "</h1>"
-                    + "<p class='date'>" + created + "</p>"
+                    + "<p class='date'>📅 " + created + "</p>"
                     + content + "</body></html>";
-            runOnUiThread(() -> {
-                WebView pdfWebView = new WebView(this);
-                pdfWebView.getSettings().setJavaScriptEnabled(false);
-                pdfWebView.loadDataWithBaseURL(null, html, "text/html", "utf-8", null);
-                pdfWebView.setWebViewClient(new android.webkit.WebViewClient() {
-                    @Override public void onPageFinished(WebView view, String url) {
-                        android.print.PrintManager pm = (android.print.PrintManager) getSystemService(PRINT_SERVICE);
-                        String jobName = title.replaceAll("[^a-zA-Z0-9_-]", "_");
-                        pm.print(jobName, view.createPrintDocumentAdapter(jobName),
-                                new android.print.PrintAttributes.Builder().build());
-                    }
+            if (!isDestroyed()) {
+                runOnUiThread(() -> {
+                    // FIX: must add WebView to the real view hierarchy for print to work
+                    android.widget.FrameLayout root = (android.widget.FrameLayout) getWindow().getDecorView();
+                    WebView pdfView = new WebView(this);
+                    pdfView.setVisibility(View.INVISIBLE);
+                    android.widget.FrameLayout.LayoutParams lp = new android.widget.FrameLayout.LayoutParams(
+                            android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                            android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+                    root.addView(pdfView, lp);
+                    pdfView.getSettings().setJavaScriptEnabled(false);
+                    pdfView.loadDataWithBaseURL(null, html, "text/html", "utf-8", null);
+                    final String jobName = title.replaceAll("[^a-zA-Z0-9_\\-]", "_");
+                    pdfView.setWebViewClient(new android.webkit.WebViewClient() {
+                        @Override
+                        public void onPageFinished(WebView view, String url) {
+                            try {
+                                android.print.PrintManager pm =
+                                        (android.print.PrintManager) getSystemService(PRINT_SERVICE);
+                                if (pm != null) {
+                                    pm.print(jobName,
+                                            view.createPrintDocumentAdapter(jobName),
+                                            new android.print.PrintAttributes.Builder().build());
+                                }
+                            } catch (Exception e) {
+                                Toast.makeText(NoteDetailActivity.this,
+                                        "Lỗi xuất PDF: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            } finally {
+                                // Remove the invisible WebView after handing off to print
+                                root.postDelayed(() -> root.removeView(pdfView), 3000);
+                            }
+                        }
+                    });
                 });
-            });
+            }
         });
     }
+
 
     private int dp(int val) {
         return (int)(val * getResources().getDisplayMetrics().density);
