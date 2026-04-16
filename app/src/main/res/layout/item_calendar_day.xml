@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="0dp"
+    android:layout_height="54dp"
+    android:layout_weight="1"
+    android:layout_margin="1dp">
+
+    <!-- Today highlight background -->
+    <View
+        android:id="@+id/bgToday"
+        android:layout_width="38dp"
+        android:layout_height="38dp"
+        android:layout_gravity="center"
+        android:background="@drawable/bg_calendar_today"
+        android:visibility="gone"/>
+
+    <!-- Day number -->
+    <TextView
+        android:id="@+id/tvDay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:textColor="@color/text_primary_app"
+        android:textSize="14sp"/>
+
+    <!-- Dot indicator (has notes) -->
+    <View
+        android:id="@+id/dotIndicator"
+        android:layout_width="6dp"
+        android:layout_height="6dp"
+        android:layout_gravity="center_horizontal|bottom"
+        android:layout_marginBottom="5dp"
+        android:background="@drawable/bg_calendar_dot"
+        android:visibility="gone"/>
+
+</FrameLayout>
