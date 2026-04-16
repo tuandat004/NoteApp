@@ -81,7 +81,7 @@ public class PinLockHelper {
         LinearLayout layout = new LinearLayout(context);
         layout.setOrientation(LinearLayout.VERTICAL);
         int pad = dp(context, 20);
-        layout.setPadding(pad, dp(context, 12), pad, 0);
+        layout.setPadding(pad, dp(context, 12), pad, dp(context, 12));
 
         EditText edtPin = new EditText(context);
         edtPin.setHint("Nhập mã PIN (4–8 số)");
@@ -91,8 +91,10 @@ public class PinLockHelper {
         EditText edtConfirm = new EditText(context);
         edtConfirm.setHint("Nhập lại mã PIN");
         edtConfirm.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
-        edtConfirm.setPadding(0, dp(context, 12), 0, 0);
-        layout.addView(edtConfirm);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.topMargin = dp(context, 12);
+        layout.addView(edtConfirm, params);
 
         new AlertDialog.Builder(context)
                 .setTitle("Đặt mã PIN")
@@ -124,7 +126,7 @@ public class PinLockHelper {
         LinearLayout layout = new LinearLayout(context);
         layout.setOrientation(LinearLayout.VERTICAL);
         int pad = dp(context, 20);
-        layout.setPadding(pad, dp(context, 12), pad, 0);
+        layout.setPadding(pad, dp(context, 12), pad, dp(context, 12));
 
         EditText edtPin = new EditText(context);
         edtPin.setHint("Nhập mã PIN");

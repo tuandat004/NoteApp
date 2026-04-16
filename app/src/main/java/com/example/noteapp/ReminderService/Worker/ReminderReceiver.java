@@ -23,9 +23,10 @@ import com.example.noteapp.R;
  */
 public class ReminderReceiver extends BroadcastReceiver {
 
-    public static final String KEY_NOTE_ID = "NOTE_ID";
-    public static final String KEY_TITLE   = "TITLE";
-    public static final String KEY_MESSAGE = "MESSAGE";
+    public static final String KEY_NOTE_ID  = "NOTE_ID";
+    public static final String KEY_TITLE    = "TITLE";
+    public static final String KEY_SUBTITLE = "SUBTITLE";
+    public static final String KEY_MESSAGE  = "MESSAGE";
 
     private static final String CHANNEL_ID   = "noteapp_reminders";
     private static final String CHANNEL_NAME = "Nhắc nhở ghi chú";
@@ -42,19 +43,21 @@ public class ReminderReceiver extends BroadcastReceiver {
         }
 
         // Xử lý alarm thông thường
-        int noteId     = intent.getIntExtra(KEY_NOTE_ID, -1);
-        String title   = intent.getStringExtra(KEY_TITLE);
-        String message = intent.getStringExtra(KEY_MESSAGE);
+        int noteId      = intent.getIntExtra(KEY_NOTE_ID, -1);
+        String title    = intent.getStringExtra(KEY_TITLE);
+        String subtitle = intent.getStringExtra(KEY_SUBTITLE);
+        String message  = intent.getStringExtra(KEY_MESSAGE);
 
-        if (title == null)   title   = "Nhắc nhở Ghi chú";
-        if (message == null) message = "Đã đến giờ xem ghi chú của bạn!";
+        if (title == null)    title    = "Nhắc nhở Ghi chú";
+        if (subtitle == null) subtitle = "";
+        if (message == null)  message  = subtitle.isEmpty() ? "Đã đến giờ xem ghi chú của bạn!" : subtitle;
 
         Log.d("ReminderReceiver", "Firing reminder for noteId=" + noteId + ", title=" + title);
 
-        showNotification(context, noteId, title, message);
+        showNotification(context, noteId, title, subtitle, message);
     }
 
-    private void showNotification(Context context, int noteId, String title, String message) {
+    private void showNotification(Context context, int noteId, String title, String subtitle, String message) {
         NotificationManager manager =
             (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (manager == null) return;
@@ -85,15 +88,22 @@ public class ReminderReceiver extends BroadcastReceiver {
             pendingFlags
         );
 
+        // Build expanded text: subtitle on second line if available
+        String contentText = subtitle.isEmpty() ? message : subtitle;
+        NotificationCompat.BigTextStyle bigStyle = new NotificationCompat.BigTextStyle()
+            .setBigContentTitle(title)
+            .bigText(subtitle.isEmpty() ? message : subtitle + "\n" + message);
+
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_note_logo)
-            .setContentTitle(title)
-            .setContentText(message)
+            .setContentTitle("📝 " + title)
+            .setContentText(contentText)
+            .setSubText("QQ Notes")
             .setAutoCancel(true)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setDefaults(NotificationCompat.DEFAULT_ALL)
             .setColor(Color.parseColor("#F4B400"))
-            .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
+            .setStyle(bigStyle)
             .setContentIntent(pendingIntent);
 
         // Dùng noteId làm notification ID để mỗi note có notification riêng

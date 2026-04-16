@@ -1,220 +1,281 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/rootLayoutDetail"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:background="@color/bg_app">
 
+    <!-- ─── AppBar ─── -->
+    <RelativeLayout
+        android:id="@+id/appBarDetail"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:paddingHorizontal="8dp"
+        android:background="@color/bg_app"
+        android:elevation="4dp">
+
+        <!-- Back -->
+        <TextView
+            android:id="@+id/txtBack"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_centerVertical="true"
+            android:gravity="center"
+            android:text="‹"
+            android:textColor="@color/text_primary_app"
+            android:textSize="28sp"
+            android:background="?attr/selectableItemBackgroundBorderless"/>
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/txtHeaderTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/txtBack"
+            android:layout_toStartOf="@id/layoutAppBarActions"
+            android:layout_centerVertical="true"
+            android:layout_marginHorizontal="8dp"
+            android:text="Chi tiết Ghi chú"
+            android:textColor="@color/text_primary_app"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:maxLines="1"
+            android:ellipsize="end"/>
+
+        <!-- Action buttons: Edit + More -->
+        <LinearLayout
+            android:id="@+id/layoutAppBarActions"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentEnd="true"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/btnEdit"
+                android:layout_width="72dp"
+                android:layout_height="38dp"
+                android:gravity="center"
+                android:text="✏ Sửa"
+                android:textColor="#3A312B"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:background="@drawable/bg_btn_yellow"
+                android:layout_marginEnd="4dp"/>
+
+            <TextView
+                android:id="@+id/btnMoreOptions"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:gravity="center"
+                android:text="⋮"
+                android:textColor="@color/text_primary_app"
+                android:textSize="22sp"
+                android:background="?attr/selectableItemBackgroundBorderless"/>
+        </LinearLayout>
+    </RelativeLayout>
+
+    <!-- ─── Scrollable Content ─── -->
+    <ScrollView
+        android:id="@+id/rootLayoutDetail"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:overScrollMode="never"
+        android:background="@color/bg_app">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="20dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="120dp">
+
+            <!-- Title -->
+            <TextView
+                android:id="@+id/txtTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textColor="@color/text_primary_app"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:lineSpacingExtra="2dp"/>
+
+            <!-- Subtitle -->
+            <TextView
+                android:id="@+id/txtSubtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_link_chip"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="5dp"
+                android:text=""
+                android:textColor="#7C8DA5"
+                android:textSize="13sp"
+                android:visibility="gone"/>
+
+            <!-- Tags + Date row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/txtTags"
+                    style="@style/TagChipYellow"
+                    android:text=""
+                    android:visibility="gone"/>
+
+                <TextView
+                    android:id="@+id/txtCreatedAt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text=""
+                    android:textColor="@color/text_secondary_app"
+                    android:textSize="12sp"/>
+            </LinearLayout>
+
+            <!-- Reminder badge -->
+            <TextView
+                android:id="@+id/txtReminder"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_reminder_box"
+                android:padding="12dp"
+                android:text=""
+                android:textColor="#7B6747"
+                android:textSize="14sp"
+                android:visibility="gone"/>
+
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="4dp"
+                android:background="#22000000"/>
+
+            <!-- WebView content -->
+            <WebView
+                android:id="@+id/webViewContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#00000000"/>
+
+            <!-- Hidden views kept for compatibility -->
+            <ImageView
+                android:id="@+id/imgNote"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:background="@drawable/bg_image_thumb"
+                android:scaleType="centerCrop"
+                android:visibility="gone"/>
+
+            <TextView
+                android:id="@+id/txtLink"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textColor="@color/text_primary_app"
+                android:visibility="gone"/>
+
+            <!-- Audio recordings section -->
+            <TextView
+                android:id="@+id/txtAudioHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="🎙 Ghi âm đính kèm"
+                android:textColor="@color/text_primary_app"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:visibility="gone"/>
+
+            <LinearLayout
+                android:id="@+id/layoutAudioList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="8dp"/>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- ─── Bottom Action Toolbar ─── -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:background="@color/bg_app"
+        android:elevation="8dp">
 
-        <!-- Header: Back / Buttons -->
-        <RelativeLayout
+        <!-- Thin top border -->
+        <View
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="1dp"
+            android:background="#18000000"/>
 
-            <TextView
-                android:id="@+id/txtBack"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:text="‹ Back"
-                android:textColor="@color/text_secondary_app"
-                android:textSize="14sp" />
-
-            <TextView
-                android:id="@+id/txtHeaderTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:text=""
-                android:textColor="@color/text_primary_app"
-                android:textSize="20sp"
-                android:visibility="gone"
-                android:textStyle="bold" />
-
-            <!-- Nhóm nút hành động -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:orientation="horizontal">
-
-                <Button
-                    android:id="@+id/btnTranslate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="36dp"
-                    android:layout_marginEnd="6dp"
-                    android:background="@drawable/bg_action_chip"
-                    android:text="🌐 Dịch"
-                    android:textAllCaps="false"
-                    android:textColor="@color/text_primary_app"
-                    android:textSize="13sp"/>
-
-                <Button
-                    android:id="@+id/btnExportPdf"
-                    android:layout_width="wrap_content"
-                    android:layout_height="36dp"
-                    android:layout_marginEnd="6dp"
-                    android:background="@drawable/bg_input"
-                    android:text="PDF"
-                    android:textAllCaps="false"
-                    android:textColor="@color/text_primary_app" />
-
-                <Button
-                    android:id="@+id/btnDelete"
-                    android:layout_width="wrap_content"
-                    android:layout_height="36dp"
-                    android:layout_marginEnd="6dp"
-                    android:background="@drawable/bg_btn_yellow"
-                    android:text="Xóa"
-                    android:textAllCaps="false"
-                    android:textColor="@color/btn_delete_text" />
-
-                <Button
-                    android:id="@+id/btnEdit"
-                    android:layout_width="wrap_content"
-                    android:layout_height="36dp"
-                    android:background="@drawable/bg_btn_yellow"
-                    android:text="Edit"
-                    android:textAllCaps="false"
-                    android:textColor="@color/btn_yellow_text" />
-            </LinearLayout>
-        </RelativeLayout>
-
-        <!-- Tiêu đề -->
-        <TextView
-            android:id="@+id/txtTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text=""
-            android:textColor="@color/text_primary_app"
-            android:textSize="30sp"
-            android:textStyle="bold" />
-
-        <!-- Tags + Ngày tạo -->
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/txtTags"
-                style="@style/TagChipYellow"
-                android:text="" />
-
-            <TextView
-                android:id="@+id/txtCreatedAt"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_gravity="center_vertical"
-                android:text=""
-                android:textColor="@color/text_secondary_app"
-                android:textSize="13sp" />
-        </LinearLayout>
-
-        <!-- Phụ đề -->
-        <TextView
-            android:id="@+id/txtSubtitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/bg_link_chip"
-            android:paddingHorizontal="10dp"
-            android:paddingVertical="5dp"
-            android:text=""
-            android:textColor="#7C8DA5"
-            android:textSize="12sp" />
-
-        <!-- Ảnh đính kèm (ẩn, xử lý bên trong WebView) -->
-        <ImageView
-            android:id="@+id/imgNote"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:layout_marginTop="14dp"
-            android:background="@drawable/bg_image_thumb"
-            android:scaleType="centerCrop"
-            android:visibility="gone"/>
-
-        <!-- Thanh công cụ nội dung: biểu tượng loa -->
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="14dp">
+            android:layout_height="56dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="12dp">
 
             <TextView
                 android:id="@+id/btnTTS"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:layout_alignParentEnd="true"
-                android:background="@drawable/bg_action_chip"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_weight="1"
                 android:gravity="center"
-                android:paddingHorizontal="14dp"
+                android:background="@drawable/bg_action_chip"
                 android:text="🔊 Đọc"
                 android:textColor="@color/text_primary_app"
-                android:textSize="14sp" />
-        </RelativeLayout>
+                android:textSize="13sp"
+                android:layout_marginEnd="6dp"/>
 
-        <!-- Nội dung ghi chú (WebView) -->
-        <WebView
-            android:id="@+id/webViewContent"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:background="#00000000" />
+            <TextView
+                android:id="@+id/btnTranslate"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:background="@drawable/bg_action_chip"
+                android:text="🌐 Dịch"
+                android:textColor="@color/text_primary_app"
+                android:textSize="13sp"
+                android:layout_marginEnd="6dp"/>
 
-        <!-- Nhắc nhở -->
-        <TextView
-            android:id="@+id/txtReminder"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/bg_reminder_box"
-            android:padding="14dp"
-            android:text=""
-            android:textColor="#7B6747"
-            android:textSize="15sp"
-            android:visibility="gone" />
+            <TextView
+                android:id="@+id/btnExportPdf"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:background="@drawable/bg_action_chip"
+                android:text="📄 PDF"
+                android:textColor="@color/text_primary_app"
+                android:textSize="13sp"
+                android:layout_marginEnd="6dp"/>
 
-        <!-- Link (ẩn – xử lý trong WebView) -->
-        <TextView
-            android:id="@+id/txtLink"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:padding="8dp"
-            android:text=""
-            android:textColor="@color/text_primary_app"
-            android:textColorLink="#2074D4"
-            android:textSize="15sp"
-            android:lineSpacingExtra="4dp"
-            android:visibility="gone" />
-
-        <!-- Danh sách ghi âm đính kèm -->
-        <TextView
-            android:id="@+id/txtAudioHeader"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="🎙 Ghi âm đính kèm"
-            android:textColor="@color/text_primary_app"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            android:visibility="gone"/>
-
-        <LinearLayout
-            android:id="@+id/layoutAudioList"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginTop="8dp"/>
-
+            <TextView
+                android:id="@+id/btnDelete"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:background="@drawable/bg_action_chip"
+                android:text="🗑 Xóa"
+                android:textColor="@color/btn_delete_text"
+                android:textSize="13sp"/>
+        </LinearLayout>
     </LinearLayout>
-</ScrollView>
+
+</LinearLayout>

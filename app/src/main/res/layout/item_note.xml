@@ -62,31 +62,35 @@
         </LinearLayout>
 
         <!-- Thời gian: trên cùng bên phải -->
-        <TextView
-            android:id="@+id/txtTime"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_alignParentTop="true"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
-            android:text="Vừa xong"
-            android:textColor="#5E5751"
-            android:textSize="12sp"
-            android:gravity="end"/>
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
-        <!-- Icon khóa: hiện khi ghi chú bị khóa -->
-        <TextView
-            android:id="@+id/imgLockIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="12dp"
-            android:text="🔒"
-            android:textSize="16sp"
-            android:visibility="gone"/>
+            <!-- Icon khóa: hiện khi ghi chú bị khóa -->
+            <ImageView
+                android:id="@+id/imgLockIcon"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:layout_marginEnd="6dp"
+                android:src="@drawable/ic_lock"
+                app:tint="@color/text_secondary_app"
+                android:visibility="gone"/>
+
+            <TextView
+                android:id="@+id/txtTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Vừa xong"
+                android:textColor="@color/text_secondary_app"
+                android:textStyle="bold"
+                android:textSize="12sp"/>
+        </LinearLayout>
 
         <!-- Góc dưới phải: Ảnh thumbnail -->
         <LinearLayout

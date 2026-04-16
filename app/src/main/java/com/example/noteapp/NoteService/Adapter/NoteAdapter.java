@@ -301,8 +301,8 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
     // ─── ViewHolder ───────────────────────────────────────────────────────────
 
     static class NoteViewHolder extends RecyclerView.ViewHolder {
-        TextView txtTitle, txtTime, txtContent, txtLink, tvLockIcon;
-        ImageView imgThumb;
+        TextView txtTitle, txtTime, txtContent, txtLink;
+        ImageView imgThumb, tvLockIcon;
         com.google.android.material.card.MaterialCardView cardView;
 
         NoteViewHolder(@NonNull View itemView) {
@@ -312,7 +312,7 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
             txtContent = itemView.findViewById(R.id.txtContent);
             txtLink    = itemView.findViewById(R.id.txtLink);
             imgThumb   = itemView.findViewById(R.id.imgThumb);
-            tvLockIcon = itemView.findViewById(R.id.imgLockIcon); // TextView dùng emoji 🔒
+            tvLockIcon = itemView.findViewById(R.id.imgLockIcon); 
             cardView   = (com.google.android.material.card.MaterialCardView) itemView;
         }
     }

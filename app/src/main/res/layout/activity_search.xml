@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F7F3EF"
+    android:background="@color/bg_app"
     android:orientation="vertical"
     android:padding="16dp">
 
@@ -21,8 +21,8 @@
             android:drawablePadding="8dp"
             android:hint="Tìm kiếm..."
             android:paddingHorizontal="14dp"
-            android:textColor="#2E2A27"
-            android:textColorHint="#9B948C"/>
+            android:textColor="@color/text_primary_app"
+            android:textColorHint="@color/text_secondary_app"/>
 
         <Button
             android:id="@+id/btnCancel"
@@ -32,7 +32,7 @@
             android:background="@drawable/bg_btn_yellow"
             android:text="Cancel"
             android:textAllCaps="false"
-            android:textColor="#3A312B"/>
+            android:textColor="@color/btn_yellow_text"/>
     </LinearLayout>
 
     <TextView
@@ -41,7 +41,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="14dp"
         android:text="0 ghi chú"
-        android:textColor="#6E655E"
+        android:textColor="@color/text_secondary_app"
         android:textSize="14sp"/>
 
     <androidx.recyclerview.widget.RecyclerView
