@@ -311,15 +311,18 @@ public class NoteHomeActivity extends AppCompatActivity {
                                 (user.fullName != null && !user.fullName.isEmpty()) ? user.fullName : user.username);
                         if (user.avatar != null && !user.avatar.isEmpty()) {
                             try {
-                                android.net.Uri avatarUri = android.net.Uri.parse(user.avatar);
                                 Glide.with(this)
-                                        .load(avatarUri)
+                                        .load(user.avatar)
+                                        .skipMemoryCache(true)
+                                        .diskCacheStrategy(com.bumptech.glide.load.engine.DiskCacheStrategy.NONE)
                                         .error(android.R.drawable.ic_menu_myplaces)
                                         .placeholder(android.R.drawable.ic_menu_myplaces)
                                         .into(imgAvatar);
                             } catch (Exception e) {
                                 imgAvatar.setImageResource(android.R.drawable.ic_menu_myplaces);
                             }
+                        } else {
+                            imgAvatar.setImageResource(android.R.drawable.ic_menu_myplaces);
                         }
                     }
                 });

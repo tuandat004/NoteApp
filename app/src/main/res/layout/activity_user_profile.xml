@@ -104,6 +104,7 @@
             android:background="@drawable/bg_input"
             android:paddingHorizontal="16dp"
             android:hint="Enter your full name"
+            android:textColorHint="@color/text_secondary_app"
             android:textColor="@color/text_primary_app"
             android:layout_marginTop="8dp"/>
 
@@ -131,6 +132,7 @@
                 android:paddingEnd="48dp"
                 android:inputType="textPassword"
                 android:hint="Enter new password"
+                android:textColorHint="@color/text_secondary_app"
                 android:textColor="@color/text_primary_app"/>
 
             <ImageView
@@ -160,6 +162,7 @@
             android:background="@drawable/bg_input"
             android:paddingHorizontal="16dp"
             android:enabled="false"
+            android:textColorHint="@color/text_secondary_app"
             android:textColor="@color/text_primary_app"
             android:layout_marginTop="8dp"/>
 

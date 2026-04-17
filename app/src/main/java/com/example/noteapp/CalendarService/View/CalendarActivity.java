@@ -87,6 +87,31 @@ public class CalendarActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         loadMonth();
+        checkDeepLink();
+    }
+
+    private void checkDeepLink() {
+        Intent intent = getIntent();
+        if (intent != null && intent.getBooleanExtra("IS_CALENDAR_NOTE", false)) {
+            String dateStr = intent.getStringExtra("CALENDAR_DATE");
+            int noteId = intent.getIntExtra("CALENDAR_NOTE_ID", -1);
+            if (dateStr != null && noteId != -1) {
+                // Remove to avoid reopening on normal resume later
+                intent.removeExtra("IS_CALENDAR_NOTE");
+                
+                executor.execute(() -> {
+                    List<CalendarNote> notes = dao.getNotesByDate(sessionUserId, dateStr);
+                    CalendarNote target = null;
+                    for (CalendarNote n : notes) {
+                        if (n.id == noteId) { target = n; break; }
+                    }
+                    if (target != null && !isDestroyed()) {
+                        CalendarNote finalTarget = target;
+                        runOnUiThread(() -> showEditNoteDialog(dateStr, finalTarget));
+                    }
+                });
+            }
+        }
     }
 
     @Override
@@ -191,7 +216,7 @@ public class CalendarActivity extends AppCompatActivity {
 
                 TextView tvTitle = new TextView(this);
                 tvTitle.setText(n.title != null && !n.title.isEmpty() ? n.title : "(Không tiêu đề)");
-                tvTitle.setTextColor(0xFF1E1B4B);
+                tvTitle.setTextColor(getColor(R.color.text_primary_app));
                 tvTitle.setTextSize(14f);
                 tvTitle.setTypeface(null, android.graphics.Typeface.BOLD);
                 textCol.addView(tvTitle);
@@ -377,6 +402,9 @@ public class CalendarActivity extends AppCompatActivity {
             AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
             Intent intent = new Intent(this, ReminderReceiver.class);
             intent.putExtra(ReminderReceiver.KEY_NOTE_ID, note.id + 100000);
+            intent.putExtra("IS_CALENDAR_NOTE", true);
+            intent.putExtra("CALENDAR_DATE", note.dateStr);
+            intent.putExtra("CALENDAR_NOTE_ID", note.id);
             intent.putExtra(ReminderReceiver.KEY_TITLE, note.title != null ? note.title : "Lịch nhắc nhở");
             intent.putExtra(ReminderReceiver.KEY_MESSAGE, "Nhắc nhở từ lịch: " + note.dateStr);
             intent.putExtra(ReminderReceiver.KEY_SUBTITLE, note.dateStr);

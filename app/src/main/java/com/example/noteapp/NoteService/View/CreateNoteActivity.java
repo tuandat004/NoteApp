@@ -710,6 +710,7 @@ public class CreateNoteActivity extends AppCompatActivity {
 
         buildWaveformBars();
         setupDialogButtons();
+        resetDialogUI();
         audioDialog.show();
     }
 
@@ -817,6 +818,9 @@ public class CreateNoteActivity extends AppCompatActivity {
             tvMainRecordIcon.setText("⏹");
             tvRecordStatus.setText("Đang ghi âm...");
             tvRecordStatus.setTextColor(Color.parseColor("#FF4444"));
+            btnPauseRecord.setVisibility(View.VISIBLE);
+            btnReRecord.setVisibility(View.GONE);
+            btnConfirmRecord.setVisibility(View.GONE);
             startTimerAndWave();
             startDotBlink();
         } catch (Exception e) {
@@ -840,9 +844,13 @@ public class CreateNoteActivity extends AppCompatActivity {
         timerHandler.removeCallbacksAndMessages(null);
         waveHandler.removeCallbacksAndMessages(null);
         tvMainRecordIcon.setText("⏺");
-        tvRecordStatus.setText("Đã dừng – Nhấn ✓ Lưu để hoàn tất");
+        tvRecordStatus.setText("Đã dừng – Nhấn ✓ Xong để hoàn tất");
         tvRecordStatus.setTextColor(Color.parseColor("#4CAF50"));
         recordingDot.setAlpha(0f);
+        btnPauseRecord.setVisibility(View.GONE);
+        btnMainRecord.setVisibility(View.GONE);
+        btnReRecord.setVisibility(View.VISIBLE);
+        btnConfirmRecord.setVisibility(View.VISIBLE);
         flattenWave();
     }
 
@@ -950,6 +958,10 @@ public class CreateNoteActivity extends AppCompatActivity {
         tvPauseIcon.setText("⏸");
         recordingDot.setAlpha(0f);
         currentRecordingPath = null;
+        if (btnPauseRecord != null) btnPauseRecord.setVisibility(View.GONE);
+        if (btnReRecord != null) btnReRecord.setVisibility(View.GONE);
+        if (btnConfirmRecord != null) btnConfirmRecord.setVisibility(View.GONE);
+        if (btnMainRecord != null) btnMainRecord.setVisibility(View.VISIBLE);
         flattenWave();
     }
 

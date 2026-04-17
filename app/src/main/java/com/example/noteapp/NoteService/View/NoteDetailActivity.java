@@ -260,6 +260,21 @@ public class NoteDetailActivity extends AppCompatActivity {
             // Apply to scroll area only
             View scroll = findViewById(R.id.rootLayoutDetail);
             if (scroll != null) scroll.setBackgroundColor(parsed);
+
+            // Tự động tính toán độ sáng của nền để đổi màu chữ tương phản, khắc phục lỗi chữ mờ
+            double luminance = ColorUtils.calculateLuminance(parsed);
+            int contrastColor = luminance > 0.5 ? Color.parseColor("#1A1A1A") : Color.WHITE;
+            
+            txtTitle.setTextColor(contrastColor);
+            txtHeaderTitle.setTextColor(contrastColor);
+            txtBack.setTextColor(contrastColor);
+            btnMoreOptions.setTextColor(contrastColor);
+            // txtCreatedAt is secondary text, maybe mix it?
+            txtCreatedAt.setTextColor(luminance > 0.5 ? Color.parseColor("#5A5A5A") : Color.parseColor("#CCCCCC"));
+
+            // Đổi màu title của file Audio nếu có
+            if (txtAudioHeader != null) txtAudioHeader.setTextColor(contrastColor);
+
         } catch (Exception ignored) {}
     }
 

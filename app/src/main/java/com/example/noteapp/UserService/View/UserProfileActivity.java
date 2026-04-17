@@ -63,6 +63,8 @@ public class UserProfileActivity extends AppCompatActivity {
                         if (localPath != null) {
                             currentAvatarUri = localPath;
                             Glide.with(this).load(localPath)
+                                    .skipMemoryCache(true)
+                                    .diskCacheStrategy(com.bumptech.glide.load.engine.DiskCacheStrategy.NONE)
                                     .error(android.R.drawable.ic_menu_myplaces)
                                     .into(imgProfileAvatar);
                         } else {
@@ -190,6 +192,8 @@ public class UserProfileActivity extends AppCompatActivity {
                         try {
                             Glide.with(this)
                                     .load(user.avatar)
+                                    .skipMemoryCache(true)
+                                    .diskCacheStrategy(com.bumptech.glide.load.engine.DiskCacheStrategy.NONE)
                                     .error(android.R.drawable.ic_menu_myplaces)
                                     .placeholder(android.R.drawable.ic_menu_myplaces)
                                     .into(imgProfileAvatar);

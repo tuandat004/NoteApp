@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:background="@drawable/bg_manage_tag_box"
-    android:padding="20dp"
+    android:padding="26dp"
     android:gravity="center_horizontal">
 
     <!-- Status Header -->
@@ -29,7 +29,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Sẵn sàng"
-            android:textColor="@color/text_primary"
+            android:textColor="@color/text_primary_app"
             android:textSize="18sp"
             android:textStyle="bold" />
     </LinearLayout>
@@ -39,8 +39,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="00:00"
-        android:textColor="@color/text_secondary"
-        android:textSize="28sp"
+        android:textColor="@color/text_primary_app"
+        android:textSize="36sp"
         android:textStyle="bold"
         android:layout_marginBottom="24dp" />
 
@@ -54,12 +54,25 @@
         android:layout_marginBottom="24dp" />
 
     <!-- Controls -->
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
         android:layout_marginBottom="24dp">
+
+        <LinearLayout
+            android:id="@+id/btnMainRecord"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:background="@drawable/bg_btn_yellow_round"
+            android:layout_centerInParent="true"
+            android:gravity="center">
+            <TextView
+                android:id="@+id/tvMainRecordIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🎙️"
+                android:textSize="32sp" />
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/btnPauseRecord"
@@ -67,6 +80,8 @@
             android:layout_height="56dp"
             android:background="@drawable/bg_circle_avatar"
             android:gravity="center"
+            android:layout_toStartOf="@id/btnMainRecord"
+            android:layout_centerVertical="true"
             android:layout_marginEnd="20dp"
             android:visibility="gone">
             <TextView
@@ -76,34 +91,14 @@
                 android:text="⏸"
                 android:textSize="24sp" />
         </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/btnMainRecord"
-            android:layout_width="72dp"
-            android:layout_height="72dp"
-            android:background="@drawable/bg_btn_yellow_round"
-            android:gravity="center">
-            <TextView
-                android:id="@+id/tvMainRecordIcon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="🎙️"
-                android:textSize="32sp" />
-        </LinearLayout>
-        
-        <ImageView
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:layout_marginStart="20dp"
-            android:visibility="invisible" />
-    </LinearLayout>
+    </RelativeLayout>
 
     <!-- Bottom Actions -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:weightSum="3"
+        android:layout_marginTop="8dp"
         android:gravity="center_vertical">
 
         <TextView
@@ -112,10 +107,14 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Hủy"
-            android:textColor="@color/text_secondary"
+            android:textColor="@color/text_secondary_app"
+            android:background="@drawable/bg_input"
             android:gravity="center"
             android:textSize="16sp"
-            android:padding="8dp" />
+            android:textStyle="bold"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:layout_marginEnd="6dp" />
 
         <TextView
             android:id="@+id/btnReRecord"
@@ -123,10 +122,15 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Ghi lại"
-            android:textColor="@color/accent"
+            android:textColor="@color/text_primary_app"
+            android:background="@drawable/bg_input"
             android:gravity="center"
             android:textSize="16sp"
-            android:padding="8dp"
+            android:textStyle="bold"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:layout_marginEnd="6dp"
+            android:layout_marginStart="6dp"
             android:visibility="gone" />
 
         <TextView
@@ -135,11 +139,14 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Xong"
-            android:textColor="@color/success"
-            android:textStyle="bold"
+            android:textColor="@color/btn_yellow_text"
+            android:background="@drawable/bg_btn_yellow"
             android:gravity="center"
             android:textSize="16sp"
-            android:padding="8dp"
+            android:textStyle="bold"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:layout_marginStart="6dp"
             android:visibility="gone" />
     </LinearLayout>
 

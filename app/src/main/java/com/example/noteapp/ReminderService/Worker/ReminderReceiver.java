@@ -10,9 +10,13 @@ import android.graphics.Color;
 import android.os.Build;
 import android.util.Log;
 
+
 import androidx.core.app.NotificationCompat;
 
-import com.example.noteapp.NoteService.View.NoteDetailActivity;
+import com.example.noteapp.CalendarService.View.CalendarActivity;
+import com.example.noteapp.NoteService.View.CreateNoteActivity;
+import com.example.noteapp.NoteService.View.NoteHomeActivity;
+import androidx.core.app.TaskStackBuilder;
 import com.example.noteapp.R;
 
 /**
@@ -54,10 +58,10 @@ public class ReminderReceiver extends BroadcastReceiver {
 
         Log.d("ReminderReceiver", "Firing reminder for noteId=" + noteId + ", title=" + title);
 
-        showNotification(context, noteId, title, subtitle, message);
+        showNotification(context, intent, noteId, title, subtitle, message);
     }
 
-    private void showNotification(Context context, int noteId, String title, String subtitle, String message) {
+    private void showNotification(Context context, Intent intent, int noteId, String title, String subtitle, String message) {
         NotificationManager manager =
             (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (manager == null) return;
@@ -75,18 +79,42 @@ public class ReminderReceiver extends BroadcastReceiver {
             manager.createNotificationChannel(channel);
         }
 
-        // Intent mở NoteDetailActivity khi tap notification
-        Intent tapIntent = new Intent(context, NoteDetailActivity.class);
-        tapIntent.putExtra("note_id", noteId);
-        tapIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        boolean isCalendarNote = intent.getBooleanExtra("IS_CALENDAR_NOTE", false);
+        PendingIntent pendingIntent;
 
-        int pendingFlags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
-        PendingIntent pendingIntent = PendingIntent.getActivity(
-            context,
-            noteId,
-            tapIntent,
-            pendingFlags
-        );
+        if (isCalendarNote) {
+            String calendarDate = intent.getStringExtra("CALENDAR_DATE");
+            int calendarNoteId = intent.getIntExtra("CALENDAR_NOTE_ID", -1);
+
+            Intent calendarIntent = new Intent(context, CalendarActivity.class);
+            calendarIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            calendarIntent.putExtra("IS_CALENDAR_NOTE", true);
+            calendarIntent.putExtra("CALENDAR_DATE", calendarDate);
+            calendarIntent.putExtra("CALENDAR_NOTE_ID", calendarNoteId);
+
+            pendingIntent = PendingIntent.getActivity(
+                context,
+                noteId,
+                calendarIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+            );
+        } else {
+            // Mở NoteHomeActivity ở dưới, CreateNoteActivity (chỉnh sửa) ở trên cho ghi chú thường
+            Intent homeIntent = new Intent(context, NoteHomeActivity.class);
+            homeIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+            Intent editIntent = new Intent(context, CreateNoteActivity.class);
+            editIntent.putExtra("note_id", noteId);
+
+            TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+            stackBuilder.addNextIntent(homeIntent);
+            stackBuilder.addNextIntent(editIntent);
+
+            pendingIntent = stackBuilder.getPendingIntent(
+                noteId,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+            );
+        }
 
         // Build expanded text: subtitle on second line if available
         String contentText = subtitle.isEmpty() ? message : subtitle;
