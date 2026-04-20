@@ -42,7 +42,6 @@ public class LoginActivity extends AppCompatActivity {
         tvForgot        = findViewById(R.id.tvForgot);
         eyePassword     = findViewById(R.id.eyePassword);
         btnGoogle       = findViewById(R.id.btnGoogle);
-        btnFacebook     = findViewById(R.id.btnFacebook);
         progressLoading = findViewById(R.id.progressLoading);
 
         userDao = AppDatabase.getInstance(this).userDao();

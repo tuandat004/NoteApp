@@ -19,7 +19,7 @@
                 android:id="@+id/txtBack"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="‹ Back"
+                android:text="‹ Quay lại"
                 android:textColor="#7C726A"
                 android:textSize="14sp" />
 
@@ -28,7 +28,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:text="Manage Tags"
+                android:text="Quản lý tags"
                 android:textColor="#2F2925"
                 android:textSize="22sp"
                 android:textStyle="bold" />
@@ -39,7 +39,7 @@
                 android:layout_height="40dp"
                 android:layout_alignParentEnd="true"
                 android:background="@drawable/bg_btn_yellow"
-                android:text="Edit"
+                android:text="EdIt"
                 android:textAllCaps="false"
                 android:textColor="#2F2925"
                 android:textStyle="bold" />
@@ -50,7 +50,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="Your Tags"
+            android:text="Tag của bạn"
             android:textColor="#5D534B"
             android:textSize="16sp" />
 
@@ -76,7 +76,7 @@
                 android:layout_marginTop="8dp"
                 android:gravity="center_vertical"
                 android:paddingHorizontal="18dp"
-                android:text="+ Add Tag"
+                android:text="+ Thêm tag mới"
                 android:textColor="#4A4039"
                 android:textSize="18sp" />
         </LinearLayout>

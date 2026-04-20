@@ -21,13 +21,13 @@
             <ImageView
                 android:layout_width="60dp"
                 android:layout_height="60dp"
-                android:src="@drawable/ic_note_logo" />
+                android:src="@mipmap/ic_launcher" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
-                android:text="Note App"
+                android:text="Panda Notes"
                 android:textSize="22sp"
                 android:textStyle="bold"
                 android:textColor="#000"/>
@@ -37,7 +37,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Log In"
+            android:text="Đăng nhập"
             android:textSize="20sp"
             android:textStyle="bold"
             android:textColor="#000"
@@ -111,7 +111,7 @@
             android:layout_gravity="end"
             android:layout_marginTop="8dp"
             android:textStyle="bold"
-            android:text="Forgot Password ?"
+            android:text="Quên mật khẩu ?"
             android:textColor="#F4B400" />
 
         <!-- LOGIN BUTTON -->
@@ -169,7 +169,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Don't have an account?"
+            android:text="Bạn không có tài khoản, hãy đăng ký ngay!"
             android:textSize="16sp"
             android:layout_gravity="center"
             android:layout_marginTop="10dp"/>
@@ -179,7 +179,7 @@
             android:id="@+id/tvRegister"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Register"
+            android:text="ĐĂNG KÝ"
             android:layout_marginTop="12dp"
             android:textStyle="bold"
             android:textColor="#F4B400"
@@ -206,31 +206,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Continue with Google"
-                android:textColor="#000"
-                android:textSize="20sp"
-                android:layout_marginStart="50dp"/>
-        </LinearLayout>
-
-        <!-- FACEBOOK -->
-        <LinearLayout
-            android:id="@+id/btnFacebook"
-            android:layout_width="match_parent"
-            android:layout_height="65dp"
-            android:background="@drawable/bg_social"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:padding="16dp"
-            android:layout_marginTop="10dp">
-
-            <ImageView
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:src="@drawable/ic_facebook"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Continue with Facebook"
                 android:textColor="#000"
                 android:textSize="20sp"
                 android:layout_marginStart="50dp"/>

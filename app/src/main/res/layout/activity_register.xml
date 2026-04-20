@@ -30,17 +30,17 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Back"
-                    android:textSize="15sp"
+                    android:layout_marginStart="6dp"
+                    android:text="Quay lại"
                     android:textColor="#000"
-                    android:layout_marginStart="6dp"/>
+                    android:textSize="15sp" />
             </LinearLayout>
 
             <!-- TITLE -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Register"
+                android:text="Đăng ký"
                 android:textSize="22sp"
                 android:textStyle="bold"
                 android:textColor="#000"
@@ -51,7 +51,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Create a new account"
+            android:text="Tạo tài khoản mới của bạn"
             android:textColor="#888"
             android:textSize="14sp"
             android:layout_gravity="center"
@@ -193,7 +193,7 @@
             android:id="@+id/btnRegister"
             android:layout_width="match_parent"
             android:layout_height="55dp"
-            android:text="Sign Up"
+            android:text="Đăng ký"
             android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="#000"
@@ -206,7 +206,7 @@
             android:id="@+id/tvLogin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Already have an account? Log In"
+            android:text="Bạn đã có tài khoản trước đó, hãy đăng nhập"
             android:textSize="14sp"
             android:textColor="#F4B400"
             android:layout_gravity="center"
