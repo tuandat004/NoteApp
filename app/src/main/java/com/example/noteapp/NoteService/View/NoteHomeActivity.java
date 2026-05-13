@@ -306,7 +306,7 @@ public class NoteHomeActivity extends AppCompatActivity {
             User user = userDao.getUserById(sessionUserId);
             if (!isDestroyed()) {
                 runOnUiThread(() -> {
-                    if (user != null) {
+                    if (user != null && !isDestroyed() && !isFinishing()) {
                         tvUserName.setText(
                                 (user.fullName != null && !user.fullName.isEmpty()) ? user.fullName : user.username);
                         if (user.avatar != null && !user.avatar.isEmpty()) {
@@ -366,7 +366,12 @@ public class NoteHomeActivity extends AppCompatActivity {
         chip.setText(text);
         chip.setTextSize(14f);
         chip.setPadding(24, 14, 24, 14);
-        chip.setTextColor(0xFF5A5048);
+        
+        int textColor = isSelected 
+                ? ContextCompat.getColor(this, R.color.btn_yellow_text)
+                : ContextCompat.getColor(this, R.color.text_primary_app);
+        chip.setTextColor(textColor);
+        
         LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         p.setMarginEnd(12);
@@ -380,7 +385,7 @@ public class NoteHomeActivity extends AppCompatActivity {
         chip.setText(text);
         chip.setTextSize(14f);
         chip.setPadding(24, 14, 24, 14);
-        chip.setTextColor(0xFF5A5048);
+        chip.setTextColor(ContextCompat.getColor(this, R.color.text_secondary_app));
         chip.setBackgroundResource(R.drawable.bg_input);
         LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);

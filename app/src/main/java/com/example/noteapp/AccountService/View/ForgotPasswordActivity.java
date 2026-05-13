@@ -64,7 +64,6 @@ public class ForgotPasswordActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getDelegate().setLocalNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
         setContentView(R.layout.activity_forgot_password);
 
         userDao = AppDatabase.getInstance(this).userDao();

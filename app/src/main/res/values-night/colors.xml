@@ -2,11 +2,15 @@
 <resources>
     <!-- App Specific Semantic Colors (Night) -->
     <color name="bg_app">#121212</color>
-    <color name="bg_input_app">#1E1E1E</color>
-    <color name="text_primary_app">#E0E0E0</color>
-    <color name="text_secondary_app">#A0A0A0</color>
-    <color name="btn_yellow">#BFA344</color>
+    <color name="bg_card">#1E1E1E</color>
+    <color name="bg_input_app">#2C2C2C</color>
+    <color name="bg_input">#2C2C2C</color>
+    <color name="text_primary_app">#FFFFFF</color>
+    <color name="text_secondary_app">#B0B0B0</color>
+    <color name="text_hint">#757575</color>
+    <color name="btn_yellow">#FFD54F</color>
     <color name="btn_yellow_text">#121212</color>
-    <color name="btn_delete_text">#FF6666</color>
+    <color name="btn_delete_text">#FF8A80</color>
     <color name="color_divider">#333333</color>
+    <color name="primary">#FFD54F</color>
 </resources>

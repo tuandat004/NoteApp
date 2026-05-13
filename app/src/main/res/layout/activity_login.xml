@@ -211,5 +211,30 @@
                 android:layout_marginStart="50dp"/>
         </LinearLayout>
 
+        <!-- FACEBOOK -->
+        <LinearLayout
+            android:id="@+id/btnFacebook"
+            android:layout_width="match_parent"
+            android:layout_height="65dp"
+            android:background="@drawable/bg_social"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="16dp"
+            android:layout_marginTop="12dp">
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/ic_facebook" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Continue with Facebook"
+                android:textColor="#000"
+                android:textSize="20sp"
+                android:layout_marginStart="50dp"/>
+        </LinearLayout>
+
     </LinearLayout>
 </ScrollView>
