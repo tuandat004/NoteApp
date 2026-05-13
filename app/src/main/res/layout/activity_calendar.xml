@@ -18,7 +18,7 @@
         <!-- Back + Title -->
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="52dp"
             android:paddingHorizontal="16dp">
 
             <ImageButton
@@ -110,6 +110,7 @@
         android:layout_weight="1"
         android:paddingHorizontal="8dp"
         android:paddingTop="4dp"
+        android:paddingBottom="16dp"
         android:clipToPadding="false"/>
 
 </LinearLayout>

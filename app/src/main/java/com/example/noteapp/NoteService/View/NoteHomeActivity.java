@@ -87,6 +87,16 @@ public class NoteHomeActivity extends AppCompatActivity {
             });
         }
 
+        // Navigation bar insets for BottomNavigationView
+        if (bottomNav != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(bottomNav, (v, insets) -> {
+                int navBottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom;
+                v.setPadding(v.getPaddingLeft(), v.getPaddingTop(),
+                        v.getPaddingRight(), navBottom > 0 ? navBottom + 8 : 8);
+                return WindowInsetsCompat.CONSUMED;
+            });
+        }
+
         userDao = AppDatabase.getInstance(this).userDao();
         SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
         sessionUserId = prefs.getInt("user_id", -1);
@@ -193,6 +203,7 @@ public class NoteHomeActivity extends AppCompatActivity {
     // ─── Long click menu ─────────────────────────────────────────────────────
 
     private void showNoteOptionsDialog(Note note) {
+        if (isDestroyed() || isFinishing()) return;
         boolean isLocked = note.isLocked == 1;
         String[] options = isLocked
                 ? new String[]{"✏️ Xem / Sửa", "🔓 Hủy khóa ghi chú", "🗑 Chuyển vào thùng rác"}

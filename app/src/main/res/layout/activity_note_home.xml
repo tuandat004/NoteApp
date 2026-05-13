@@ -187,10 +187,13 @@
         android:layout_gravity="bottom"
         android:layout_marginHorizontal="20dp"
         android:layout_marginBottom="20dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="8dp"
         android:background="@drawable/bg_bottom_nav_floating"
         app:menu="@menu/bottom_nav_menu"
         app:itemIconTint="@drawable/bottom_nav_selector"
         app:itemTextColor="@drawable/bottom_nav_selector"
+        app:itemIconSize="24dp"
         app:labelVisibilityMode="labeled"
         app:elevation="12dp"/>
 

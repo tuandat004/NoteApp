@@ -3,6 +3,7 @@ package com.example.noteapp.UserService.View;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -12,6 +13,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import android.widget.Switch;
 
@@ -124,6 +127,16 @@ public class UserProfileActivity extends AppCompatActivity {
         btnLogout = findViewById(R.id.btnLogout);
 
         btnBack.setOnClickListener(v -> finish());
+
+        // Apply status bar top padding dynamically
+        View scrollView = findViewById(R.id.profileScrollView);
+        if (scrollView != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(scrollView, (v, insets) -> {
+                int top = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top;
+                scrollView.setPadding(0, top, 0, 0);
+                return WindowInsetsCompat.CONSUMED;
+            });
+        }
         
         imgProfileAvatar.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);

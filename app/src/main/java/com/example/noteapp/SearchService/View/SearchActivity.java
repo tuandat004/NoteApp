@@ -4,10 +4,13 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.widget.Button;
+import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageButton;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,7 +27,7 @@ import java.util.List;
 public class SearchActivity extends AppCompatActivity {
 
     private EditText edtSearchKeyword;
-    private Button btnCancel;
+    private ImageButton btnBack;
     private RecyclerView rvSearchResult;
     private android.widget.TextView txtResultCount;
     
@@ -39,9 +42,19 @@ public class SearchActivity extends AppCompatActivity {
         setContentView(R.layout.activity_search);
 
         edtSearchKeyword = findViewById(R.id.edtSearchKeyword);
-        btnCancel = findViewById(R.id.btnCancel);
+        btnBack = findViewById(R.id.btnBack);
         rvSearchResult = findViewById(R.id.rvSearchResult);
         txtResultCount = findViewById(R.id.txtResultCount);
+
+        // Apply status bar top padding
+        View rootView = findViewById(R.id.searchRootLayout);
+        ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, insets) -> {
+            int top = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top;
+            v.setPadding(v.getPaddingLeft(),
+                    top + (int)(12 * getResources().getDisplayMetrics().density),
+                    v.getPaddingRight(), v.getPaddingBottom());
+            return WindowInsetsCompat.CONSUMED;
+        });
 
         SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
         sessionUserId = prefs.getInt("user_id", -1);
@@ -50,7 +63,7 @@ public class SearchActivity extends AppCompatActivity {
         rvSearchResult.setLayoutManager(new LinearLayoutManager(this));
         rvSearchResult.setAdapter(adapter);
 
-        if (btnCancel != null) btnCancel.setOnClickListener(v -> finish());
+        if (btnBack != null) btnBack.setOnClickListener(v -> finish());
 
         allNotesData = AppDatabase.getInstance(this).noteDao().getAllNotes(sessionUserId);
         allNotesData.observe(this, notes -> {

@@ -1,15 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/searchRootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bg_app"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:fitsSystemWindows="true"
+    android:paddingTop="16dp"
+    android:paddingHorizontal="16dp"
+    android:paddingBottom="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <!-- Back button -->
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_back"
+            android:padding="10dp"
+            android:layout_marginEnd="8dp"
+            app:tint="@color/text_primary_app"
+            xmlns:app="http://schemas.android.com/apk/res-auto"/>
 
         <EditText
             android:id="@+id/edtSearchKeyword"
@@ -22,17 +39,10 @@
             android:hint="Tìm kiếm..."
             android:paddingHorizontal="14dp"
             android:textColor="@color/text_primary_app"
-            android:textColorHint="@color/text_secondary_app"/>
+            android:textColorHint="@color/text_secondary_app"
+            android:imeOptions="actionSearch"
+            android:inputType="text"/>
 
-        <Button
-            android:id="@+id/btnCancel"
-            android:layout_width="wrap_content"
-            android:layout_height="48dp"
-            android:layout_marginStart="10dp"
-            android:background="@drawable/bg_btn_yellow"
-            android:text="Cancel"
-            android:textAllCaps="false"
-            android:textColor="@color/btn_yellow_text"/>
     </LinearLayout>
 
     <TextView
@@ -49,6 +59,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="10dp"
-        android:paddingBottom="20dp"
+        android:paddingBottom="24dp"
+        android:clipToPadding="false"
         android:layout_weight="1"/>
 </LinearLayout>
